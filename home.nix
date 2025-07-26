@@ -11,7 +11,7 @@
 
   # Packages installed for your user
   home.packages = [
-    phgs.fira-code  
+    pkgs.fira-code  
   ];
 
   # The starship prompt is a good first package to install.
