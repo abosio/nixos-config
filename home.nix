@@ -23,7 +23,7 @@
       size = 14;
     };
     theme = "Solarized Dark";
-  }
+  };
 
   # Some services
   services.gpg-agent = {
