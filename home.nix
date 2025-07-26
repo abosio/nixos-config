@@ -11,11 +11,12 @@
 
   # Packages installed for your user
   home.packages = [
-    pkgs.fira-code  
+    pkgs.age
+    pkgs.fira-code
+    pkgs.sops
+    pkgs.ssh-to-age
   ];
 
-  # The starship prompt is a good first package to install.
-  #programs.starship.enable = true;
   programs.kitty = {
     enable = true;
     font = {
