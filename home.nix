@@ -23,7 +23,7 @@
       name = "Fira Code";
       size = 14;
     };
-    theme = "Solarized Dark";
+    themeFile = "Nord";
   };
 
   # Some services
