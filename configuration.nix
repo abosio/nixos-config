@@ -2,9 +2,10 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ inputs, config, pkgs, ... }:
 
 {
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
@@ -17,6 +18,9 @@
   # ABOSIO
   system.autoUpgrade.enable = true;
   system.autoUpgrade.allowReboot = false;
+  networking.extraHosts = ''
+    167.71.175.50   git.abosio.com
+  '';
   # END ABOSIO  
 
   networking.hostName = "nixos"; # Define your hostname.
@@ -164,7 +168,7 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.openssh.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -173,6 +177,8 @@
   # networking.firewall.enable = false;
 
   # ABOSIO
+  sops.defaultSopsFile = "${inputs.nixos-secrets}/secrets.yaml";
+  sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
   services.syncthing = {
     enable = true;
     user = "abosio";
@@ -181,8 +187,8 @@
     configDir = "/home/abosio/.config/syncthing";
     settings = {
       devices = {
-        "macmini" = { id = "XXXXXXX-X8-1"; };
-        "macbookpro" = { id = "XXXXXXX-X8-2"; }; 
+        "gotham" = { id = sops.secrets.gotham_syncthing_id; };
+        "MBP" = { id = sops.secrets.mbp_syncthing_id; };
       };
     };
   };

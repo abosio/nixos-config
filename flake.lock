@@ -21,6 +21,22 @@
         "type": "github"
       }
     },
+    "nixos-secrets": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1753759998,
+        "narHash": "sha256-aJ/mRU53981TzEWHo8ixds3+T5yTqR/I5vmDcu3T/TU=",
+        "ref": "refs/heads/main",
+        "rev": "060de520b782494c2db826c227857464080fae19",
+        "revCount": 2,
+        "type": "git",
+        "url": "ssh://abosio@abosio.com:1022/opt/git/nixos-secrets.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://abosio@abosio.com:1022/opt/git/nixos-secrets.git"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1753345091,
@@ -40,7 +56,29 @@
     "root": {
       "inputs": {
         "home-manager": "home-manager",
-        "nixpkgs": "nixpkgs"
+        "nixos-secrets": "nixos-secrets",
+        "nixpkgs": "nixpkgs",
+        "sops-nix": "sops-nix"
+      }
+    },
+    "sops-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1752544651,
+        "narHash": "sha256-GllP7cmQu7zLZTs9z0J2gIL42IZHa9CBEXwBY9szT0U=",
+        "owner": "Mic92",
+        "repo": "sops-nix",
+        "rev": "2c8def626f54708a9c38a5861866660395bb3461",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "sops-nix",
+        "type": "github"
       }
     }
   },
