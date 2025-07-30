@@ -140,21 +140,7 @@
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
-    pkgs.cliphist
-    pkgs.docker
-    pkgs.git
-    pkgs.joplin-desktop
-    pkgs.libreoffice
-    pkgs.logseq
-    pkgs.signal-desktop
-    pkgs.slack
-    pkgs.syncthing
-    pkgs.tigervnc
     pkgs.vim
-    pkgs.vlc
-    pkgs.vscode
-    pkgs.wl-clipboard
-    pkgs.zoom-us
   ];
 
   # Some programs need SUID wrappers, can be configured further or are

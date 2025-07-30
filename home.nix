@@ -15,6 +15,20 @@
     pkgs.fira-code
     pkgs.sops
     pkgs.ssh-to-age
+    pkgs.cliphist
+    pkgs.docker
+    pkgs.git
+    pkgs.joplin-desktop
+    pkgs.libreoffice
+    pkgs.logseq
+    pkgs.signal-desktop
+    pkgs.slack
+    pkgs.syncthing
+    pkgs.tigervnc
+    pkgs.vlc
+    pkgs.vscode
+    pkgs.wl-clipboard
+    pkgs.zoom-us
   ];
 
   programs.kitty = {
