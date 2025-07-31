@@ -15,7 +15,7 @@
       flake = false;
     };
   };
-  outputs = { self, nixpkgs, home-manager, sops-nix, nixos-secrets }: {
+  outputs = inputs@{ self, nixpkgs, home-manager, sops-nix, nixos-secrets }: {
     nixosConfigurations = {
       logan = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -29,6 +29,9 @@
           }
           sops-nix.nixosModules.sops
         ];
+        specialArgs = {
+          inherit inputs;
+        };
       };
     };
   };

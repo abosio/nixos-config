@@ -165,6 +165,8 @@
   # ABOSIO
   sops.defaultSopsFile = "${inputs.nixos-secrets}/secrets.yaml";
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+  sops.secrets.gotham_syncthing_id = {};
+  sops.secrets.mbp_syncthing_id = {};
   services.syncthing = {
     enable = true;
     user = "abosio";
@@ -173,8 +175,8 @@
     configDir = "/home/abosio/.config/syncthing";
     settings = {
       devices = {
-        "gotham" = { id = sops.secrets.gotham_syncthing_id; };
-        "MBP" = { id = sops.secrets.mbp_syncthing_id; };
+        "gotham" = { id = config.sops.secrets.gotham_syncthing_id; };
+        "MBP" = { id = config.sops.secrets.mbp_syncthing_id; };
       };
     };
   };
