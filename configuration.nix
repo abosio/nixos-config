@@ -174,10 +174,7 @@
     dataDir = "/home/abosio/.local/share/syncthing";
     configDir = "/home/abosio/.config/syncthing";
     settings = {
-      devices = {
-        "gotham" = { id = config.sops.secrets.gotham_syncthing_id; };
-        "MBP" = { id = config.sops.secrets.mbp_syncthing_id; };
-      };
+      devices = import "${inputs.nixos-secrets}/syncthing-devices.nix";
     };
   };
   # END ABOSIO
