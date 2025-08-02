@@ -24,11 +24,11 @@
     "nixos-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1753759998,
-        "narHash": "sha256-aJ/mRU53981TzEWHo8ixds3+T5yTqR/I5vmDcu3T/TU=",
+        "lastModified": 1754163113,
+        "narHash": "sha256-BEf/gErqwFmtMnsUnQYZKXYt6XWp7jGgpjS5Y61QZJU=",
         "ref": "refs/heads/main",
-        "rev": "060de520b782494c2db826c227857464080fae19",
-        "revCount": 2,
+        "rev": "d5bc6e534954e5303dc563769f34c60c3a8bbbf9",
+        "revCount": 3,
         "type": "git",
         "url": "ssh://abosio@abosio.com:1022/opt/git/nixos-secrets.git"
       },
