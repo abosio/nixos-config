@@ -9,6 +9,10 @@
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
+  programs.zsh.sessionVariables = {
+    EDITOR = "vim";
+  };
+
   # Packages installed for your user
   home.packages = [
     pkgs.age
@@ -33,6 +37,7 @@
 
   programs.kitty = {
     enable = true;
+    shellIntegration.enableZshIntegration = true;
     font = {
       name = "Fira Code";
       size = 14;
