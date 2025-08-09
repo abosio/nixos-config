@@ -13,6 +13,8 @@
     EDITOR = "vim";
   };
 
+  programs.zsh.enable = true;
+
   # Packages installed for your user
   home.packages = [
     pkgs.age
