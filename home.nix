@@ -17,18 +17,18 @@
   home.packages = [
     pkgs.age
     pkgs.bat
-    pkgs.eza
-    pkgs.fira-code
-    pkgs.sops
-    pkgs.ssh-to-age
     pkgs.cliphist
     pkgs.docker
+    pkgs.eza
+    pkgs.fira-code
     pkgs.git
     pkgs.joplin-desktop
     pkgs.libreoffice
     pkgs.logseq
     pkgs.signal-desktop
     pkgs.slack
+    pkgs.sops
+    pkgs.ssh-to-age
     pkgs.syncthing
     pkgs.tigervnc
     pkgs.vlc
