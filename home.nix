@@ -2,6 +2,10 @@
 { pkgs, ... }:
 
 {
+  imports = [
+    ./zsh.nix
+  ];
+
   home.username = "abosio";
   home.homeDirectory = "/home/abosio";
   home.stateVersion = "25.05";
@@ -9,15 +13,11 @@
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
-  programs.zsh.sessionVariables = {
-    EDITOR = "vim";
-  };
-
-  programs.zsh.enable = true;
-
   # Packages installed for your user
   home.packages = [
     pkgs.age
+    pkgs.bat
+    pkgs.eza
     pkgs.fira-code
     pkgs.sops
     pkgs.ssh-to-age
@@ -35,6 +35,7 @@
     pkgs.vscode
     pkgs.wl-clipboard
     pkgs.zoom-us
+    pkgs.zoxide
   ];
 
   programs.kitty = {
