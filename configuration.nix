@@ -15,13 +15,11 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # ABOSIO
   system.autoUpgrade.enable = true;
   system.autoUpgrade.allowReboot = false;
   networking.extraHosts = ''
     167.71.175.50   git.abosio.com
   '';
-  # END ABOSIO  
 
   networking.hostName = "logan"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -98,14 +96,9 @@
     ];
   };
 
-
-  # Install firefox.
-  programs.firefox.enable = true;
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # ABOSIO
   fonts = {
     packages = with pkgs; [
       fira-code
@@ -124,11 +117,6 @@
     };
   }];
 
-  #environment.etc."dconf/db/site.d/locks/terminal-font".text = ''
-  #  /org/gnome/terminal/legacy/profiles:/default/font
-  #  /org/gnome/terminal/legacy/profiles:/default/use-system-font
-  #'';
-
   programs._1password.enable = true;
   programs._1password-gui = {
     enable = true;
@@ -136,7 +124,6 @@
     # require enabling PolKit integration on some desktop environments (e.g. Plasma).
     polkitPolicyOwners = [ "abosio" ];
   };
-  # END ABOSIO
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -165,22 +152,15 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
-  # ABOSIO
-  sops.defaultSopsFile = "${inputs.nixos-secrets}/secrets.yaml";
-  sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-  sops.secrets.gotham_syncthing_id = {};
-  sops.secrets.mbp_syncthing_id = {};
+  # Setup syncthing
   services.syncthing = {
     enable = true;
-    user = "abosio";
-    openDefaultPorts = true; # Open ports in the firewall for Syncthing
     dataDir = "/home/abosio/.local/share/syncthing";
     configDir = "/home/abosio/.config/syncthing";
     settings = {
       devices = import "${inputs.nixos-secrets}/syncthing-devices.nix";
     };
   };
-  # END ABOSIO
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

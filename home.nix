@@ -38,6 +38,10 @@
     pkgs.zoxide
   ];
 
+  # Setup firefox.
+  programs.firefox.enable = true;
+
+  # Setup kitty terminal
   programs.kitty = {
     enable = true;
     shellIntegration.enableZshIntegration = true;
