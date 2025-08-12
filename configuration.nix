@@ -155,6 +155,8 @@
   # Setup syncthing
   services.syncthing = {
     enable = true;
+    user = "abosio";
+    openDefaultPorts = true; # Open ports in the firewall for Syncthing
     dataDir = "/home/abosio/.local/share/syncthing";
     configDir = "/home/abosio/.config/syncthing";
     settings = {
