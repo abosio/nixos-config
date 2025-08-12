@@ -1,4 +1,3 @@
-# zsh.nix
 { config, ... }:
 
 {
