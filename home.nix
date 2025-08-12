@@ -1,8 +1,9 @@
 
-{ pkgs, ... }:
+{ ... }:
 
 {
   imports = [
+    ./kitty.nix
     ./packages.nix
     ./zsh.nix
   ];
@@ -16,17 +17,6 @@
 
   # Setup firefox.
   programs.firefox.enable = true;
-
-  # Setup kitty terminal
-  programs.kitty = {
-    enable = true;
-    shellIntegration.enableZshIntegration = true;
-    font = {
-      name = "Fira Code";
-      size = 14;
-    };
-    themeFile = "Nord";
-  };
 
   # Some services
   services.gpg-agent = {
