@@ -26,6 +26,15 @@
     };
   };
 
+  programs.ssh = {
+    enable = true;
+    extraConfig = ''
+      Host *
+        SetEnv TERM=xterm-256color
+    '';
+  };
+
+
   # Some services
   services.gpg-agent = {
     enable = true;

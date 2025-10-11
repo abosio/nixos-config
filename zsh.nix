@@ -12,6 +12,7 @@
       EDITOR = "vim";
       TERMINAL = "kitty";
       BROWSER = "firefox";
+      TERM = "xterm-256color";
     };
     syntaxHighlighting.enable = true;
     shellAliases = {
