@@ -15,8 +15,16 @@
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
-  # Setup firefox.
+  # Setup Mozilla
   programs.firefox.enable = true;
+  programs.thunderbird = {
+    enable = true;
+    profiles = {
+      default = {
+        isDefault = true;
+      };
+    };
+  };
 
   # Some services
   services.gpg-agent = {
