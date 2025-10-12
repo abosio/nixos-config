@@ -19,6 +19,7 @@
     pkgs.ssh-to-age
     pkgs.syncthing
     pkgs.tigervnc
+    pkgs.vivaldi
     pkgs.vlc
     pkgs.vscode
     pkgs.wl-clipboard
