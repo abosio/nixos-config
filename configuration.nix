@@ -105,18 +105,19 @@
       fira-code
     ];
     fontconfig.enable = true;
+    fontDir.enable = true;
   };
-  console.font = "FireCode";
-  programs.dconf.enable = true;
-  fonts.fontDir.enable = true;
-  programs.dconf.profiles.user.databases = [{
-    settings = {
-      "org/gnome/terminal/legacy/profiles:/:default" = {
-        font = "Fira Code 14";
-        use-system-font = false;
+  programs.dconf = {
+    enable = true;
+    profiles.user.databases = [{
+      settings = {
+        "org/gnome/terminal/legacy/profiles:/:default" = {
+          font = "Fira Code 14";
+          use-system-font = false;
+        };
       };
-    };
-  }];
+    }];
+  };
 
   programs._1password.enable = true;
   programs._1password-gui = {
