@@ -126,6 +126,8 @@
     # require enabling PolKit integration on some desktop environments (e.g. Plasma).
     polkitPolicyOwners = [ "abosio" ];
   };
+  # enable non-nix binaries
+  programs.nix-ld.enable = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
