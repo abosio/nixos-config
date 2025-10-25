@@ -42,4 +42,10 @@
     enableSshSupport = true;
   };
 
+  dconf.settings = {
+    "org/gnome/desktop/input-sources" = {
+      xkb-options = ["ctrl:nocaps"];
+    };
+  };
+
 }
