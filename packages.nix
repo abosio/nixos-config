@@ -5,6 +5,7 @@
   home.packages = [
     pkgs.age
     pkgs.bat
+    pkgs.claude-code
     pkgs.cliphist
     pkgs.docker
     pkgs.eza
