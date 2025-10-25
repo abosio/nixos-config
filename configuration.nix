@@ -179,4 +179,11 @@
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.05"; # Did you read the comment?
 
+
+  fileSystems."/mnt/pi" = {
+    device = "raspberrypi5.local:/home/abosio";
+    fsType = "nfs";
+    options = [ "x-systemd.automount" "noauto" "_netdev" ];
+  };
+
 }
