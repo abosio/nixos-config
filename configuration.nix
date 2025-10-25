@@ -30,7 +30,10 @@
 
   # Enable networking
   networking.networkmanager.enable = true;
-  services.avahi.enable = true;
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;  # Enable mDNS resolution for .local domains
+  };
 
   # Set your time zone.
   time.timeZone = "America/New_York";
