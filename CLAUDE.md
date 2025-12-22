@@ -46,10 +46,13 @@ nix flake update home-manager
 flake.nix                      # Entry point - declares inputs and system output
 ├── configuration.nix          # System-wide configuration
 │   └── hardware-configuration.nix  # Auto-generated (DO NOT EDIT)
-└── home.nix                   # Home-manager root
-    ├── kitty.nix              # Terminal configuration
-    ├── packages.nix           # User packages (29 packages)
-    └── zsh.nix                # Shell configuration
+├── home.nix                   # Home-manager root
+│   ├── kitty.nix              # Terminal configuration
+│   ├── packages.nix           # User packages (29 packages)
+│   └── zsh.nix                # Shell configuration
+└── docs/                      # Detailed documentation
+    ├── README.md              # Documentation table of contents
+    └── printer-setup.md       # Printer discovery and configuration guide
 ```
 
 ### Flake Inputs
@@ -66,7 +69,8 @@ flake.nix                      # Entry point - declares inputs and system output
 **System Configuration (configuration.nix):**
 - Hostname, bootloader, networking
 - Display (X11 + GNOME), audio (PipeWire)
-- Services: OpenSSH, Syncthing, Avahi mDNS, auto-upgrade
+- Services: OpenSSH, Syncthing, Avahi mDNS, auto-upgrade, CUPS printing
+- Hardware: Brother HL-2170W printer (declaratively configured)
 - Security: 1Password integration, nix-ld for non-Nix binaries
 - NFS mount for Raspberry Pi 5 at /mnt/pi
 - User definition for "abosio"
@@ -91,7 +95,10 @@ imports = [ "${inputs.nixos-secrets}/syncthing-devices.nix" ];
 **Avahi mDNS** is enabled with nssmdns4 for .local domain resolution. This is critical for:
 - Syncthing device discovery
 - NFS mount to Raspberry Pi 5 (via raspberrypi5.local)
+- Printer discovery and hostname resolution (BRN001BA92DE10D.local)
 - General LAN service discovery
+
+Avahi publishing is also enabled (`services.avahi.publish`) to advertise services on the network.
 
 ### Hardware Configuration
 
@@ -151,6 +158,24 @@ programs.kitty = {
 };
 ```
 
+### Adding Printers
+
+Printers are configured declaratively in [configuration.nix](configuration.nix) using `hardware.printers.ensurePrinters`. See [docs/printer-setup.md](docs/printer-setup.md) for detailed guidance on printer discovery and configuration.
+
+Example:
+```nix
+hardware.printers.ensurePrinters = [{
+  name = "Printer_Name";
+  location = "Home";
+  deviceUri = "ipp://printer.local/ipp/port1";
+  model = "drv:///driver.drv/model.ppd";
+  description = "Description";
+  ppdOptions = {
+    PageSize = "Letter";
+  };
+}];
+```
+
 ## Special Features
 
 ### 1Password Integration
@@ -175,6 +200,16 @@ The system has `nix-ld` enabled, allowing execution of non-Nix compiled binaries
 ```nix
 programs.nix-ld.enable = true;
 ```
+
+### Printing
+
+CUPS printing is enabled with support for multiple printer types. The Brother HL-2170W is configured declaratively using the HL-2140 driver (closest compatible model) via hostname-based IPP connection. See [docs/printer-setup.md](docs/printer-setup.md) for details.
+
+Printer drivers installed:
+- `brlaser` - Brother laser printers
+- `brgenml1lpr` / `brgenml1cupswrapper` - Brother generic drivers
+- `hplip` - HP printers
+- `gutenprint` - Canon, Epson, Lexmark, Sony, Olympus
 
 ## Version Control
 
