@@ -20,6 +20,7 @@
     pkgs.ssh-to-age
     pkgs.syncthing
     pkgs.tigervnc
+    pkgs.tor-browser
     pkgs.vivaldi
     pkgs.vlc
     pkgs.vscode
