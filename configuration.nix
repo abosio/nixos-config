@@ -132,6 +132,11 @@
   # enable non-nix binaries
   programs.nix-ld.enable = true;
 
+  # Add Caddy internal CA certificate for *.abosio-cloud.com
+  security.pki.certificateFiles = [
+    "${inputs.nixos-secrets}/caddy-root-ca.crt"
+  ];
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
