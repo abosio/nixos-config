@@ -1,5 +1,5 @@
 
-{ ... }:
+{ pkgs, ... }:
 
 {
   imports = [
@@ -28,6 +28,12 @@
 
   programs.ssh = {
     enable = true;
+    addKeysToAgent = "yes";
+    matchBlocks = {
+      "raspberrypi5 raspberrypi5.local" = {
+        forwardAgent = true;
+      };
+    };
     extraConfig = ''
       Host *
         SetEnv TERM=xterm-256color
@@ -40,6 +46,7 @@
     enable = true;
     defaultCacheTtl = 1800;
     enableSshSupport = true;
+    pinentryPackage = pkgs.pinentry-gnome3;
   };
 
   dconf.settings = {
