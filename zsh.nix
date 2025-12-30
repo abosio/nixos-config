@@ -32,6 +32,9 @@
 
       # show history from first entry
       history = "history 1";
+
+      # Sync
+      syncbooks = "rsync -avh --delete  '/home/abosio/Sync/Calibre Library/' /mnt/pi/services/calibre/library/";
     };
 
     # Zsh Plugin Manager
