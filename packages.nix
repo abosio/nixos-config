@@ -15,6 +15,7 @@
     pkgs.joplin-desktop
     pkgs.libreoffice
     pkgs.logseq
+    pkgs.obs-studio
     pkgs.signal-desktop
     pkgs.slack
     pkgs.sops
