@@ -56,6 +56,13 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
+  # Configure AMD GPU drivers for hybrid graphics (RX 7600M + Radeon 680M)
+  services.xserver.videoDrivers = [ "amdgpu" ];
+
+  # Enable hardware acceleration for AMD GPUs
+  hardware.graphics.enable = true;
+  hardware.graphics.enable32Bit = true;
+
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
