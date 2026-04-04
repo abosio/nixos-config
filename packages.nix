@@ -1,8 +1,9 @@
-{ pkgs, ... }:
+{ pkgs, pkgs-unstable, ... }:
 
 {
   # Packages installed for your user
   home.packages = [
+    pkgs-unstable.librepods
     pkgs.age
     pkgs.bat
     pkgs.calibre
