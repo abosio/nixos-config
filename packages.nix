@@ -27,7 +27,7 @@
     pkgs.tor-browser
     pkgs.vivaldi
     pkgs.vlc
-    pkgs.vscode
+    pkgs-unstable.vscode
     pkgs.wl-clipboard
     pkgs.zoom-us
     pkgs.zoxide
