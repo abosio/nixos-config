@@ -25,6 +25,9 @@ sudo nixos-rebuild dry-run --flake /home/abosio/nixos-config#logan
 
 # Boot into new generation (activate on next reboot)
 sudo nixos-rebuild boot --flake /home/abosio/nixos-config#logan
+
+# List recent generations (date, NixOS version, current marker)
+nixos-rebuild list-generations
 ```
 
 ### Updating Dependencies
