@@ -33,6 +33,10 @@
       "raspberrypi5 raspberrypi5.local" = {
         forwardAgent = true;
       };
+      "git.abosio.com" = {
+        port = 2222;
+        user = "forgejo";
+      };
     };
     extraConfig = ''
       Host *
