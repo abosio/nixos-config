@@ -24,6 +24,7 @@
     pkgs.ssh-to-age
     pkgs.syncthing
     pkgs.tigervnc
+    pkgs.uv
     pkgs.tor-browser
     pkgs.vivaldi
     pkgs.vlc
