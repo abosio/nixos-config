@@ -39,9 +39,8 @@
       };
     };
     extraConfig = ''
-      Host *
-        SetEnv TERM=xterm-256color
-        IdentityAgent ~/.1password/agent.sock
+      SetEnv TERM=xterm-256color
+      IdentityAgent ~/.1password/agent.sock
     '';
   };
 
