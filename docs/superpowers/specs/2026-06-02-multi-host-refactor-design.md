@@ -94,10 +94,10 @@ modules/nixos/
 home/
   shared/
     kitty.nix
-    packages.nix
-    zsh.nix                     # shared aliases only (no abosio-specific ones)
+    packages.nix                # base set (both users/hosts); host-specific pkgs added per-host
+    zsh.nix                     # zsh framework only (no aliases)
   abosio/
-    default.nix                 # imports shared/* + abosio-specific config
+    default.nix                 # imports shared/*; aliases + host-conditional pkgs + abosio config
   # jayme/                      # reserved — future spec
 ```
 
@@ -229,22 +229,34 @@ duplication.
 
 ## Home-Manager Split
 
+The home layer separates a shared base from abosio-specific config, and scaffolds
+the per-host package-divergence pattern so abosio's package set can differ between
+Logan and Norfolk later. `osConfig` (the system configuration) is automatically
+available inside home-manager modules when home-manager runs as a NixOS module, so
+`osConfig.networking.hostName` is the branch key — no flake change needed.
+
 ### `home/shared/`
 
 - `kitty.nix` — moved verbatim.
-- `packages.nix` — moved verbatim. Continues to receive `pkgs-unstable` via the
-  existing `home-manager.extraSpecialArgs` (no flake change needed). Shareable as
-  a whole; `jayme` can opt in later or define a smaller set.
-- `zsh.nix` — moved, **minus the `syncbooks` alias**. That alias hardcodes
-  `/home/abosio` and `/mnt/pi`, so it does not belong in shared config.
+- `packages.nix` — the base package set both hosts/users get. Receives
+  `pkgs-unstable` via the existing `home-manager.extraSpecialArgs` (no flake change
+  needed). Host-specific packages do **not** live here; `obs-studio` moves out of
+  this base into abosio's host-conditional list (below).
+- `zsh.nix` — the zsh **framework only**: `enable`, `enableCompletion`, `history`,
+  `sessionVariables`, `syntaxHighlighting`, `zplug` plugins, and `initContent`
+  (prompt, keybindings, zoxide init). **No `shellAliases`** — every current alias
+  is abosio-specific and moves to `home/abosio`.
 
 ### `home/abosio/default.nix`
 
 Imports `../shared/kitty.nix`, `../shared/packages.nix`, `../shared/zsh.nix`, and
-holds the abosio-specific configuration currently in `home.nix`:
+holds abosio's configuration. Function args include `osConfig` and `lib` for the
+host branch:
 
-- `home.username = "abosio"`, `home.homeDirectory = "/home/abosio"`,
-  `home.stateVersion = "25.05"`
+- `home.username = "abosio"`, `home.homeDirectory = "/home/abosio"`
+- `home.stateVersion = "25.05"` — per-user compatibility marker, kept consistent
+  for abosio across all hosts (see note below). Unlike `system.stateVersion`, this
+  is **not** per-machine.
 - `programs.home-manager.enable = true`
 - `programs.firefox.enable`
 - `programs.thunderbird` (default profile)
@@ -252,9 +264,41 @@ holds the abosio-specific configuration currently in `home.nix`:
   `IdentityAgent` + `SetEnv` extraConfig)
 - `services.gpg-agent` (ssh support, gnome3 pinentry)
 - `dconf.settings` caps→ctrl (`xkb-options = [ "ctrl:nocaps" ]`)
-- the `syncbooks` alias, re-added here via
-  `programs.zsh.shellAliases.syncbooks = "...";` (home-manager merges this with
-  the shared `zsh.nix` aliases)
+- **All `programs.zsh.shellAliases`** from the current `zsh.nix` — navigation
+  (`ls`/`ll`/`la`), convenience (`grep`/`cat`), safety (`cp`/`mv`/`rm`),
+  `history`, and `syncbooks`. home-manager merges these onto the shared framework.
+- **Host-conditional packages** via `osConfig.networking.hostName`:
+
+```nix
+{ pkgs, lib, osConfig, ... }:
+let
+  hostname = osConfig.networking.hostName;
+in
+{
+  # ...abosio config...
+  home.packages =
+    lib.optional (hostname != "norfolk") pkgs.obs-studio
+    # ++ lib.optional (hostname == "norfolk") pkgs.pong3d   # example: norfolk-only (future)
+    ;
+}
+```
+
+`obs-studio` moves out of the shared base into this list. On Logan
+(`hostname != "norfolk"`) it is included, so Logan's resolved package set — shared
+base ∪ `obs-studio` — equals today's set exactly. The `pong3d` line is a commented
+placeholder demonstrating the Norfolk-only pattern; the real Norfolk-only package
+is filled in by the Norfolk spec (left commented now to avoid referencing a
+package that isn't installed anywhere yet).
+
+### Note: `home.stateVersion` is per-user, not per-machine
+
+`home.stateVersion` pins the release whose default values home-manager uses for a
+given user's environment. abosio keeps `25.05` on every host so abosio's home
+behaves identically wherever abosio logs in; it does not need to match a host's OS
+release. jayme, a different user, will get her own `home.stateVersion` (likely
+`26.05`) in `home/jayme/default.nix` when first created. This parallels — and
+deliberately contrasts with — `system.stateVersion`, which is per-host
+(deviation 1).
 
 ## flake.nix
 
@@ -318,7 +362,12 @@ in
   any dropped or changed option changes the path.
 - **Untracked-file invisibility.** Git-backed flakes ignore untracked files;
   `git add -A` before every build.
-- **`stateVersion` accidentally shared.** Explicitly placed per-host (deviation 1).
+- **`stateVersion` accidentally shared.** `system.stateVersion` explicitly placed
+  per-host (deviation 1); `home.stateVersion` explicitly per-user.
+- **`osConfig` host-branching shifts Logan's package set.** On Logan every branch
+  resolves to today's set (shared base ∪ `obs-studio`), and `home.packages` builds
+  a `buildEnv` keyed by the set of derivations, so the resulting path is unchanged.
+  The store-path gate is the backstop if any branch is mis-written.
 - **CLAUDE.md drift.** Updated as the final step so docs match the new layout.
 
 ## Documentation Updates
