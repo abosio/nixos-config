@@ -14,6 +14,7 @@
       ./modules/nixos/printing.nix
       ./modules/nixos/tailscale.nix
       ./modules/nixos/onepassword.nix
+      ./modules/nixos/users.nix
     ];
 
   # Bootloader.
@@ -36,17 +37,6 @@
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
-
-  # Define a user account. Don’t forget to set a password with ‘passwd’.
-  users.users.abosio = {
-    isNormalUser = true;
-    description = "Anthony Bosio";
-    extraGroups = [ "networkmanager" "wheel" ];
-    shell = pkgs.zsh;
-    packages = with pkgs; [
-    #  thunderbird
-    ];
-  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
