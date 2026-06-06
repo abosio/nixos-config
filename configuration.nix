@@ -9,6 +9,7 @@
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       ./modules/nixos/common.nix
+      ./modules/nixos/fonts.nix
     ];
 
   # Bootloader.
@@ -81,13 +82,6 @@
     ];
   };
 
-  fonts = {
-    packages = with pkgs; [
-      fira-code
-    ];
-    fontconfig.enable = true;
-    fontDir.enable = true;
-  };
   programs.dconf = {
     enable = true;
     profiles.user.databases = [{
