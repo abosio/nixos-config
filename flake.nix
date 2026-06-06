@@ -16,27 +16,54 @@
       flake = false;
     };
   };
-  outputs = inputs@{ self, nixpkgs, nixpkgs-unstable, home-manager, sops-nix, nixos-secrets }: {
-    nixosConfigurations = {
-      logan = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
+  outputs = inputs@{ self, nixpkgs, nixpkgs-unstable, home-manager, sops-nix, nixos-secrets }:
+  let
+    system = "x86_64-linux";
+    pkgs-unstable = import nixpkgs-unstable {
+      inherit system;
+      config.allowUnfree = true;
+    };
+
+    mkHost = { hostname, users }:
+      nixpkgs.lib.nixosSystem {
+        inherit system;
+
+        specialArgs = {
+          inherit inputs;
+        };
+
         modules = [
-          ./hosts/logan
+          ./hosts/${hostname}
           home-manager.nixosModules.home-manager
+          sops-nix.nixosModules.sops
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.extraSpecialArgs = {
-              pkgs-unstable = import nixpkgs-unstable { system = "x86_64-linux"; config.allowUnfree = true; };
+              inherit pkgs-unstable;
             };
-            home-manager.users.abosio = import ./home/abosio;
+            home-manager.users = users;
           }
-          sops-nix.nixosModules.sops
         ];
-        specialArgs = {
-          inherit inputs;
+      };
+  in
+  {
+    nixosConfigurations = {
+      logan = mkHost {
+        hostname = "logan";
+        users = {
+          abosio = import ./home/abosio;
         };
       };
+
+      # Future host (separate spec):
+      # norfolk = mkHost {
+      #   hostname = "norfolk";
+      #   users = {
+      #     abosio = import ./home/abosio;
+      #     jayme = import ./home/jayme;
+      #   };
+      # };
     };
   };
 }
