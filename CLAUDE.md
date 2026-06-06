@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a flake-based NixOS configuration for a desktop machine named "logan". The configuration uses a three-layer architecture:
-- **System Layer** - Core NixOS configuration (configuration.nix)
-- **User Layer** - Home-manager based user environment (home.nix)
+This is a flake-based NixOS configuration, currently for a single host named "logan" but structured for multiple machines and users. The configuration uses a three-layer architecture:
+- **System Layer** - Per-host config in `hosts/<host>/` composing reusable `modules/nixos/` modules
+- **User Layer** - Home-manager config in `home/<user>/`, sharing `home/shared/` modules
 - **Secrets Layer** - External secrets via private nixos-secrets repository
 
 ## Key Commands
@@ -46,13 +46,30 @@ nix flake update home-manager
 ### File Organization
 
 ```
-flake.nix                      # Entry point - declares inputs and system output
-├── configuration.nix          # System-wide configuration
-│   └── hardware-configuration.nix  # Auto-generated (DO NOT EDIT)
-├── home.nix                   # Home-manager root
-│   ├── kitty.nix              # Terminal configuration
-│   ├── packages.nix           # User packages (29 packages)
-│   └── zsh.nix                # Shell configuration
+flake.nix                      # Entry point - mkHost helper, declares hosts
+├── hosts/
+│   └── logan/
+│       ├── default.nix        # Logan-specific settings + module imports
+│       └── hardware-configuration.nix  # Auto-generated (DO NOT EDIT)
+├── modules/nixos/             # Reusable system modules (imported per host)
+│   ├── common.nix             # Base every machine gets (nix, locale, audio,
+│   │                          #   ssh, networkmanager, avahi, zsh, nix-ld,
+│   │                          #   unfree/insecure, vim, git.abosio.com, Caddy CA)
+│   ├── fonts.nix              # Fira Code + fontconfig
+│   ├── desktop-gnome.nix      # X11/GDM/GNOME/xkb + gnome-terminal dconf font
+│   ├── printing.nix           # CUPS + drivers + avahi.publish + Brother printer
+│   ├── tailscale.nix          # Tailscale
+│   ├── onepassword.nix        # 1Password CLI+GUI + polkit owner
+│   ├── users.nix              # abosio system account
+│   ├── amdgpu.nix             # AMD video drivers + graphics
+│   └── syncthing.nix          # Host-aware syncthing (filters out own hostname)
+├── home/
+│   ├── shared/                # Cross-user home-manager modules
+│   │   ├── kitty.nix          # Terminal configuration
+│   │   ├── packages.nix       # Shared user package base
+│   │   └── zsh.nix            # Shell framework (aliases live per-user)
+│   └── abosio/
+│       └── default.nix        # abosio's home-manager config + aliases
 └── docs/                      # Detailed documentation
     ├── README.md              # Documentation table of contents
     └── printer-setup.md       # Printer discovery and configuration guide
@@ -60,8 +77,9 @@ flake.nix                      # Entry point - declares inputs and system output
 
 ### Flake Inputs
 
-- **nixpkgs** - NixOS packages (nixos-25.05)
-- **home-manager** - User environment management (release-25.05)
+- **nixpkgs** - NixOS packages (nixos-26.05)
+- **nixpkgs-unstable** - Unstable channel for select packages (via `pkgs-unstable`)
+- **home-manager** - User environment management (release-26.05)
 - **sops-nix** - Secrets encryption (infrastructure ready, minimal current use)
 - **nixos-secrets** - Private SSH repository
   - Currently used for Syncthing device configuration
@@ -69,19 +87,16 @@ flake.nix                      # Entry point - declares inputs and system output
 
 ### Configuration Layers
 
-**System Configuration (configuration.nix):**
-- Hostname, bootloader, networking
-- Display (X11 + GNOME), audio (PipeWire)
-- Services: OpenSSH, Syncthing, Avahi mDNS, auto-upgrade, CUPS printing
-- Hardware: Brother HL-2170W printer (declaratively configured)
-- Security: 1Password integration, nix-ld for non-Nix binaries
-- NFS mount for Raspberry Pi 5 at /mnt/pi
-- User definition for "abosio"
+**System Configuration (`hosts/logan/default.nix` + `modules/nixos/`):**
+- Host file: hostname, bootloader, `/mnt/pi` NFS mount, `system.stateVersion`, module imports
+- `common.nix`: networking, audio (PipeWire), OpenSSH, Avahi mDNS, auto-upgrade, nix-ld, Caddy CA
+- Feature modules: GNOME (`desktop-gnome.nix`), CUPS + Brother printer (`printing.nix`), Syncthing (`syncthing.nix`), Tailscale, 1Password (`onepassword.nix`), AMD GPU (`amdgpu.nix`), `abosio` account (`users.nix`)
 
-**Home-Manager (home.nix + modules):**
+**Home-Manager (`home/abosio/default.nix` + `home/shared/`):**
 - Programs: Firefox, Thunderbird, SSH, GPG agent
 - Keyboard remapping: CAPS LOCK to CTRL (via dconf)
-- Modular imports for terminal, packages, and shell config
+- Shell aliases (abosio-specific) live in the user file; terminal/packages/zsh-framework are shared modules
+- Per-host package divergence via `osConfig.networking.hostName` (e.g. obs-studio excluded on `norfolk`)
 
 ## Important Design Decisions
 
@@ -105,10 +120,10 @@ Avahi publishing is also enabled (`services.avahi.publish`) to advertise service
 
 ### Hardware Configuration
 
-The file [hardware-configuration.nix](hardware-configuration.nix) is auto-generated. Do not manually edit it. To regenerate:
+The file [hosts/logan/hardware-configuration.nix](hosts/logan/hardware-configuration.nix) is auto-generated. Do not manually edit it. To regenerate:
 
 ```bash
-sudo nixos-generate-config --show-hardware-config > hardware-configuration.nix
+sudo nixos-generate-config --show-hardware-config > hosts/logan/hardware-configuration.nix
 ```
 
 ### Home-Manager Integration
@@ -119,7 +134,7 @@ Home-manager is integrated into the NixOS configuration via `home-manager.nixosM
 
 ### Adding User Packages
 
-Edit [packages.nix](packages.nix) and add packages to the `home.packages` list:
+Edit [home/shared/packages.nix](home/shared/packages.nix) for packages all users/hosts share, and add to the `home.packages` list. For a package only one host should get, add it to that user's host-conditional list in [home/abosio/default.nix](home/abosio/default.nix):
 
 ```nix
 home.packages = with pkgs; [
@@ -130,7 +145,7 @@ home.packages = with pkgs; [
 
 ### Adding System Services
 
-Edit [configuration.nix](configuration.nix) under the `services` section:
+Edit [hosts/logan/default.nix](hosts/logan/default.nix) for host-specific services, or the relevant module in [modules/nixos/](modules/nixos/) (create a new module for a reusable service and import it from the host):
 
 ```nix
 services.myservice = {
@@ -141,17 +156,17 @@ services.myservice = {
 
 ### Adding Shell Aliases
 
-Edit [zsh.nix](zsh.nix) in the `shellAliases` section:
+abosio's aliases live in [home/abosio/default.nix](home/abosio/default.nix) under `programs.zsh.shellAliases` (the shared zsh *framework* is [home/shared/zsh.nix](home/shared/zsh.nix)):
 
 ```nix
-shellAliases = {
+programs.zsh.shellAliases = {
   myalias = "my command";
 };
 ```
 
 ### Modifying Terminal Appearance
 
-Edit [kitty.nix](kitty.nix) to change font, size, or theme:
+Edit [home/shared/kitty.nix](home/shared/kitty.nix) to change font, size, or theme:
 
 ```nix
 programs.kitty = {
@@ -163,7 +178,7 @@ programs.kitty = {
 
 ### Adding Printers
 
-Printers are configured declaratively in [configuration.nix](configuration.nix) using `hardware.printers.ensurePrinters`. See [docs/printer-setup.md](docs/printer-setup.md) for detailed guidance on printer discovery and configuration.
+Printers are configured declaratively in [modules/nixos/printing.nix](modules/nixos/printing.nix) using `hardware.printers.ensurePrinters`. See [docs/printer-setup.md](docs/printer-setup.md) for detailed guidance on printer discovery and configuration.
 
 Example:
 ```nix
@@ -194,11 +209,11 @@ programs._1password-gui = {
 
 ### Docker
 
-Docker is installed as a user package but the user is not in the docker group. To enable rootless Docker or add user to docker group, modify configuration.nix.
+Docker is installed as a user package but the user is not in the docker group. To enable rootless Docker or add user to docker group, modify the relevant module (e.g. `modules/nixos/users.nix`).
 
 ### Non-Nix Binaries
 
-The system has `nix-ld` enabled, allowing execution of non-Nix compiled binaries. This is configured in configuration.nix:
+The system has `nix-ld` enabled, allowing execution of non-Nix compiled binaries. This is configured in `modules/nixos/common.nix`:
 
 ```nix
 programs.nix-ld.enable = true;
