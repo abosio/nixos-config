@@ -7,7 +7,7 @@
 {
   imports =
     [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
+      ./hosts/logan/hardware-configuration.nix
       ./modules/nixos/common.nix
       ./modules/nixos/fonts.nix
       ./modules/nixos/desktop-gnome.nix
