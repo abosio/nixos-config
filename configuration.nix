@@ -16,6 +16,7 @@
       ./modules/nixos/onepassword.nix
       ./modules/nixos/users.nix
       ./modules/nixos/amdgpu.nix
+      ./modules/nixos/syncthing.nix
     ];
 
   # Bootloader.
@@ -47,18 +48,6 @@
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
-
-  # Setup syncthing
-  services.syncthing = {
-    enable = true;
-    user = "abosio";
-    openDefaultPorts = true; # Open ports in the firewall for Syncthing
-    dataDir = "/home/abosio/.local/share/syncthing";
-    configDir = "/home/abosio/.config/syncthing";
-    settings = {
-      devices = import "${inputs.nixos-secrets}/syncthing-devices.nix";
-    };
-  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
