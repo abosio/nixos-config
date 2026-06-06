@@ -17,7 +17,6 @@
     pkgs.libreoffice
     pkgs.logseq
     pkgs.losslesscut-bin
-    pkgs.obs-studio
     pkgs.signal-desktop
     pkgs.slack
     pkgs.sops

@@ -842,16 +842,32 @@ In `home.nix`, update the argument set on the first line from `{ pkgs, ... }:` t
 
 (`home.packages` set both here and in the shared module is merged by home-manager, so Logan resolves to the shared list ∪ `obs-studio` = the original set.)
 
-- [ ] **Step 4: Verify path preserved**
+- [ ] **Step 4: Verify behavior preserved (NOTE: path intentionally changes here)**
 
-Run the **VERIFY block**. Expected: `✓ PATH PRESERVED`.
+Unlike every other task, this one **changes the `toplevel` store path** — and that is expected. Re-adding `obs-studio` through a separate module moves it from mid-list to the end of the merged `home.packages`, and a `buildEnv` derivation's hash is sensitive to its `paths` list order. The *closure* (the set of store paths) is unchanged, so the system is behaviorally identical.
+
+Verify with diff-closures emptiness instead of path identity:
+
+```bash
+git add -A
+nix build .#nixosConfigurations.logan.config.system.build.toplevel \
+  --no-link --print-out-paths > /tmp/logan-new-path
+echo "--- diff-closures (MUST be empty = behavior identical) ---"
+nix store diff-closures "$(cat /tmp/logan-baseline-path)" "$(cat /tmp/logan-new-path)"
+```
+Expected: the diff-closures output is **empty** (no added/removed/changed packages). If anything is listed, an option was dropped — STOP and report BLOCKED.
+
+Then re-baseline so the remaining tasks verify against this new path:
+```bash
+cp /tmp/logan-new-path /tmp/logan-baseline-path
+echo "re-baselined to: $(cat /tmp/logan-baseline-path)"
+```
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add -A
-git commit -m "refactor: move packages to home/shared, scaffold host-conditional obs" \
-  -m "Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+git commit -m "refactor: move packages to home/shared, scaffold host-conditional obs"
 ```
 
 ---

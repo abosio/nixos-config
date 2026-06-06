@@ -1,12 +1,19 @@
 
-{ pkgs, ... }:
+{ pkgs, lib, osConfig, ... }:
 
 {
   imports = [
     ./home/shared/kitty.nix
-    ./packages.nix
+    ./home/shared/packages.nix
     ./home/shared/zsh.nix
   ];
+
+  # Host-specific packages for this user. obs-studio everywhere except norfolk;
+  # the commented line shows where a norfolk-only package would go later.
+  home.packages =
+    lib.optional (osConfig.networking.hostName != "norfolk") pkgs.obs-studio
+    # ++ lib.optional (osConfig.networking.hostName == "norfolk") pkgs.pong3d
+    ;
 
   home.username = "abosio";
   home.homeDirectory = "/home/abosio";
