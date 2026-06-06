@@ -15,27 +15,6 @@
       TERM = "xterm-256color";
     };
     syntaxHighlighting.enable = true;
-    shellAliases = {
-      # Navigation
-      ls = "eza";
-      ll = "eza -l";
-      la = "eza -la";
-
-      # Convenience
-      grep = "grep --color=auto";
-      cat = "bat -pp"; # A better 'cat'
-
-      # Safety
-      cp = "cp -i";
-      mv = "mv -i";
-      rm = "rm -i";
-
-      # show history from first entry
-      history = "history 1";
-
-      # Sync
-      syncbooks = "rsync -avh --delete  '/home/abosio/Sync/Calibre Library/' /mnt/pi/services/calibre/library/";
-    };
 
     # Zsh Plugin Manager
     zplug = {
