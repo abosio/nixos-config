@@ -12,6 +12,7 @@
       ./modules/nixos/fonts.nix
       ./modules/nixos/desktop-gnome.nix
       ./modules/nixos/printing.nix
+      ./modules/nixos/tailscale.nix
     ];
 
   # Bootloader.
@@ -62,8 +63,6 @@
   # };
 
   # List services that you want to enable:
-
-  services.tailscale.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
