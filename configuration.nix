@@ -10,6 +10,7 @@
       ./hardware-configuration.nix
       ./modules/nixos/common.nix
       ./modules/nixos/fonts.nix
+      ./modules/nixos/desktop-gnome.nix
     ];
 
   # Bootloader.
@@ -23,25 +24,12 @@
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
-
   # Configure AMD GPU drivers for hybrid graphics (RX 7600M + Radeon 680M)
   services.xserver.videoDrivers = [ "amdgpu" ];
 
   # Enable hardware acceleration for AMD GPUs
   hardware.graphics.enable = true;
   hardware.graphics.enable32Bit = true;
-
-  # Enable the GNOME Desktop Environment.
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
-
-  # Configure keymap in X11
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
-  };
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
@@ -80,18 +68,6 @@
     packages = with pkgs; [
     #  thunderbird
     ];
-  };
-
-  programs.dconf = {
-    enable = true;
-    profiles.user.databases = [{
-      settings = {
-        "org/gnome/terminal/legacy/profiles:/:default" = {
-          font = "Fira Code 14";
-          use-system-font = false;
-        };
-      };
-    }];
   };
 
   programs._1password.enable = true;
