@@ -3,7 +3,7 @@
 
 {
   imports = [
-    ./kitty.nix
+    ./home/shared/kitty.nix
     ./packages.nix
     ./zsh.nix
   ];
