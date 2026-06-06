@@ -21,7 +21,7 @@
       logan = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          ./configuration.nix
+          ./hosts/logan
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
