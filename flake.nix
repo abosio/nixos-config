@@ -29,7 +29,7 @@
             home-manager.extraSpecialArgs = {
               pkgs-unstable = import nixpkgs-unstable { system = "x86_64-linux"; config.allowUnfree = true; };
             };
-            home-manager.users.abosio = import ./home.nix;
+            home-manager.users.abosio = import ./home/abosio;
           }
           sops-nix.nixosModules.sops
         ];

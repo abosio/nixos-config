@@ -3,9 +3,9 @@
 
 {
   imports = [
-    ./home/shared/kitty.nix
-    ./home/shared/packages.nix
-    ./home/shared/zsh.nix
+    ../shared/kitty.nix
+    ../shared/packages.nix
+    ../shared/zsh.nix
   ];
 
   # Host-specific packages for this user. obs-studio everywhere except norfolk;
