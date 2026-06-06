@@ -15,6 +15,7 @@
       ./modules/nixos/tailscale.nix
       ./modules/nixos/onepassword.nix
       ./modules/nixos/users.nix
+      ./modules/nixos/amdgpu.nix
     ];
 
   # Bootloader.
@@ -27,13 +28,6 @@
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Configure AMD GPU drivers for hybrid graphics (RX 7600M + Radeon 680M)
-  services.xserver.videoDrivers = [ "amdgpu" ];
-
-  # Enable hardware acceleration for AMD GPUs
-  hardware.graphics.enable = true;
-  hardware.graphics.enable32Bit = true;
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
