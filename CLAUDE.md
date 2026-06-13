@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a flake-based NixOS configuration, currently for a single host named "logan" but structured for multiple machines and users. The configuration uses a three-layer architecture:
+This is a flake-based NixOS configuration for multiple hosts: **logan** (AMD laptop, GNOME) and **norfolk** (NVIDIA desktop, MATE; second user `jbosio`). The configuration uses a three-layer architecture:
 - **System Layer** - Per-host config in `hosts/<host>/` composing reusable `modules/nixos/` modules
 - **User Layer** - Home-manager config in `home/<user>/`, sharing `home/shared/` modules
 - **Secrets Layer** - External secrets via private nixos-secrets repository
@@ -46,34 +46,37 @@ nix flake update home-manager
 ### File Organization
 
 ```
-flake.nix                      # Entry point - mkHost helper, declares hosts
+flake.nix                      # Entry point - mkHost helper, declares logan + norfolk
 ├── hosts/
-│   └── logan/
-│       ├── default.nix        # Logan-specific settings + module imports
+│   ├── logan/                 # AMD laptop; GNOME + amdgpu inline
+│   │   ├── default.nix        # host settings + GPU/desktop inline + module imports
+│   │   └── hardware-configuration.nix  # Auto-generated (DO NOT EDIT)
+│   └── norfolk/               # NVIDIA desktop; MATE + nvidia inline; user jbosio
+│       ├── default.nix        # host settings + GPU/desktop inline + users
 │       └── hardware-configuration.nix  # Auto-generated (DO NOT EDIT)
-├── modules/nixos/             # Reusable system modules (imported per host)
-│   ├── common.nix             # Base every machine gets (nix, locale, audio,
-│   │                          #   ssh, networkmanager, avahi, zsh, nix-ld,
-│   │                          #   unfree/insecure, vim, git.abosio.com, Caddy CA)
-│   ├── fonts.nix              # Fira Code + fontconfig
-│   ├── desktop-gnome.nix      # X11/GDM/GNOME/xkb + gnome-terminal dconf font
+├── modules/nixos/             # Shared system modules (imported by 2+ hosts)
+│   ├── common.nix             # Base every machine gets (nix, locale, audio, ssh,
+│   │                          #   networkmanager, avahi, zsh, nix-ld, unfree/insecure,
+│   │                          #   vim, fonts, tailscale, 1Password, git.abosio.com, Caddy CA)
 │   ├── printing.nix           # CUPS + drivers + avahi.publish + Brother printer
-│   ├── tailscale.nix          # Tailscale
-│   ├── onepassword.nix        # 1Password CLI+GUI + polkit owner
-│   ├── users.nix              # abosio system account
-│   ├── amdgpu.nix             # AMD video drivers + graphics
-│   └── syncthing.nix          # Host-aware syncthing (filters out own hostname)
+│   ├── syncthing.nix          # Host-aware syncthing (filters out own hostname)
+│   └── users.nix              # Shared abosio system account
 ├── home/
 │   ├── shared/                # Cross-user home-manager modules
 │   │   ├── kitty.nix          # Terminal configuration
-│   │   ├── packages.nix       # Shared user package base
+│   │   ├── packages.nix       # abosio's package base (obs on logan, blender on norfolk)
 │   │   └── zsh.nix            # Shell framework (aliases live per-user)
-│   └── abosio/
-│       └── default.nix        # abosio's home-manager config + aliases
+│   ├── abosio/
+│   │   └── default.nix        # abosio's config + aliases (host-conditional via osConfig)
+│   └── jbosio/
+│       └── default.nix        # Jayme's config (norfolk only)
 └── docs/                      # Detailed documentation
     ├── README.md              # Documentation table of contents
     └── printer-setup.md       # Printer discovery and configuration guide
 ```
+
+Single-host concerns (GPU, desktop environment) live inline in each host's
+`default.nix`; `modules/nixos/` holds only what 2+ hosts share.
 
 ### Flake Inputs
 
@@ -87,10 +90,10 @@ flake.nix                      # Entry point - mkHost helper, declares hosts
 
 ### Configuration Layers
 
-**System Configuration (`hosts/logan/default.nix` + `modules/nixos/`):**
-- Host file: hostname, bootloader, `/mnt/pi` NFS mount, `system.stateVersion`, module imports
-- `common.nix`: networking, audio (PipeWire), OpenSSH, Avahi mDNS, auto-upgrade, nix-ld, Caddy CA
-- Feature modules: GNOME (`desktop-gnome.nix`), CUPS + Brother printer (`printing.nix`), Syncthing (`syncthing.nix`), Tailscale, 1Password (`onepassword.nix`), AMD GPU (`amdgpu.nix`), `abosio` account (`users.nix`)
+**System Configuration (`hosts/<host>/default.nix` + `modules/nixos/`):**
+- Host file: hostname, bootloader, GPU + desktop (inline), `system.stateVersion`, module imports, host-specific users/mounts. logan = GNOME + amdgpu + `/mnt/pi`; norfolk = MATE + nvidia + `jbosio` account + preserved `/home`.
+- `common.nix`: networking, audio (PipeWire), OpenSSH, Avahi mDNS, auto-upgrade, nix-ld, fonts, Tailscale, 1Password, Caddy CA
+- Shared modules: CUPS + Brother printer (`printing.nix`), host-aware Syncthing (`syncthing.nix`), `abosio` account (`users.nix`)
 
 **Home-Manager (`home/abosio/default.nix` + `home/shared/`):**
 - Programs: Firefox, Thunderbird, SSH, GPG agent
