@@ -230,12 +230,15 @@ device ID on first boot. Not required for norfolk to come up.
 NixOS auto-detection won't handle the NVIDIA driver, WiFi quirks, or `/home`
 preservation, so the install is deliberate:
 
-1. **Network for install:** plug in **ethernet** (`r8169`, in-tree). The flake's
-   `common.nix` fetches the Caddy CA from `nixos-secrets` over SSH at build time,
-   so norfolk needs network + SSH access to that repo before the first
-   `nixos-rebuild`. (In-tree `rtl8192ce` WiFi also works in the live ISO if no
-   cable is available.)
-2. Boot the stock NixOS installer ISO.
+1. **Network for install — WiFi (no ethernet needed):** norfolk's WiFi
+   (`rtl8192ce`) is an in-tree driver whose firmware ships on the NixOS ISO, so
+   connect over **WiFi** in the live installer. Use the **graphical (GNOME) ISO**
+   and connect via `nmtui` or the network applet (SSID + password). Ethernet
+   (`r8169`) is a fallback if a cable can reach, but is **not required**. The
+   flake's `common.nix` fetches the Caddy CA from `nixos-secrets` over SSH at
+   build time, so norfolk needs network + SSH access to that repo before the first
+   build — the live env's WiFi connection satisfies this.
+2. Boot the graphical NixOS installer ISO.
 3. **Partition manually:** repartition/format the **SSD (`sdb`)** for NixOS
    (ESP + root); **mount but do NOT format the HDD (`sda1`) at `/home`.** No
    declarative `disko` — it likes to own/wipe disks, the opposite of preserving
@@ -246,11 +249,19 @@ preservation, so the install is deliberate:
 5. Ensure SSH access to `nixos-secrets`, then
    `nixos-rebuild switch --flake .#norfolk` (or `nixos-install` from the ISO).
 6. Set passwords (`passwd abosio`, `passwd jbosio`).
+7. **After first boot into the installed system, reconnect WiFi** via the MATE
+   network applet or `nmtui` — the live installer's WiFi connection is not carried
+   into the installed system. NetworkManager (from `common.nix`) + the firmware
+   (`enableRedistributableFirmware`) are already present, so it's just entering the
+   SSID/password once. (WiFi credentials are entered interactively, not committed
+   to the public config; if declarative WiFi is wanted later, do it via a sops
+   secret.)
 
 ## Success criteria
 
 - norfolk boots into MATE via LightDM with the NVIDIA proprietary driver (X11).
-- Networking works (ethernet for install; WiFi via in-tree `rtl8192ce` after).
+- Networking works over WiFi (in-tree `rtl8192ce` + redistributable firmware),
+  both in the installer and the installed system; ethernet available but optional.
 - Both users' data on the preserved `/home` HDD is intact with correct ownership
   (`abosio` 1000:1000, `jbosio` 1001:1001).
 - caps→ctrl works for abosio under MATE; Jayme's keyboard is unaffected.
