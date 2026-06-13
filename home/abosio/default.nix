@@ -39,35 +39,34 @@
 
   programs.ssh = {
     enable = true;
-    # home-manager 26.05 removed the implicit `Host *` defaults; opt out and
-    # declare them explicitly under matchBlocks."*" (values copied verbatim from
-    # the old defaults, plus addKeysToAgent which used to be a top-level option).
+    # home-manager 26.05 deprecated `matchBlocks` in favour of `settings` (freeform,
+    # OpenSSH directive names) and removed the implicit `Host *` defaults. We opt out
+    # of those defaults and declare them explicitly; the module always emits the "*"
+    # block last, so per-host overrides keep precedence.
     enableDefaultConfig = false;
-    matchBlocks = {
+    settings = {
       "*" = {
-        forwardAgent = false;
-        addKeysToAgent = "yes";
-        compression = false;
-        serverAliveInterval = 0;
-        serverAliveCountMax = 3;
-        hashKnownHosts = false;
-        userKnownHostsFile = "~/.ssh/known_hosts";
-        controlMaster = "no";
-        controlPath = "~/.ssh/master-%r@%n:%p";
-        controlPersist = "no";
+        AddKeysToAgent = "yes";
+        Compression = false;
+        ControlMaster = "no";
+        ControlPath = "~/.ssh/master-%r@%n:%p";
+        ControlPersist = "no";
+        ForwardAgent = false;
+        HashKnownHosts = false;
+        ServerAliveCountMax = 3;
+        ServerAliveInterval = 0;
+        UserKnownHostsFile = "~/.ssh/known_hosts";
+        SetEnv = { TERM = "xterm-256color"; };
+        IdentityAgent = "~/.1password/agent.sock";
       };
       "raspberrypi5 raspberrypi5.local" = {
-        forwardAgent = true;
+        ForwardAgent = true;
       };
       "git.abosio.com" = {
-        port = 2222;
-        user = "forgejo";
+        Port = 2222;
+        User = "forgejo";
       };
     };
-    extraConfig = ''
-      SetEnv TERM=xterm-256color
-      IdentityAgent ~/.1password/agent.sock
-    '';
   };
 
 
