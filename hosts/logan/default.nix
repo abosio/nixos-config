@@ -5,11 +5,8 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/nixos/common.nix
-    ../../modules/nixos/fonts.nix
     ../../modules/nixos/desktop-gnome.nix
     ../../modules/nixos/printing.nix
-    ../../modules/nixos/tailscale.nix
-    ../../modules/nixos/onepassword.nix
     ../../modules/nixos/users.nix
     ../../modules/nixos/amdgpu.nix
     ../../modules/nixos/syncthing.nix

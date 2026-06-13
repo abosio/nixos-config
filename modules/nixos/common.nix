@@ -60,4 +60,21 @@
   security.pki.certificateFiles = [
     "${inputs.nixos-secrets}/caddy-root-ca.crt"
   ];
+
+  # Tailscale (every host).
+  services.tailscale.enable = true;
+
+  # 1Password CLI + GUI (every host; abosio owns the polkit policy).
+  programs._1password.enable = true;
+  programs._1password-gui = {
+    enable = true;
+    polkitPolicyOwners = [ "abosio" ];
+  };
+
+  # Fonts (every host).
+  fonts = {
+    packages = with pkgs; [ fira-code ];
+    fontconfig.enable = true;
+    fontDir.enable = true;
+  };
 }
