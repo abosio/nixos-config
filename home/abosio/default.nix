@@ -24,6 +24,10 @@
 
   # Setup Mozilla
   programs.firefox.enable = true;
+  # Keep the legacy profile path (~/.mozilla/firefox); the 26.05 default moved to
+  # XDG but home.stateVersion is pinned at 25.05. Setting this explicitly silences
+  # the migration warning without moving the existing profile.
+  programs.firefox.configPath = ".mozilla/firefox";
   programs.thunderbird = {
     enable = true;
     profiles = {
@@ -35,8 +39,23 @@
 
   programs.ssh = {
     enable = true;
-    addKeysToAgent = "yes";
+    # home-manager 26.05 removed the implicit `Host *` defaults; opt out and
+    # declare them explicitly under matchBlocks."*" (values copied verbatim from
+    # the old defaults, plus addKeysToAgent which used to be a top-level option).
+    enableDefaultConfig = false;
     matchBlocks = {
+      "*" = {
+        forwardAgent = false;
+        addKeysToAgent = "yes";
+        compression = false;
+        serverAliveInterval = 0;
+        serverAliveCountMax = 3;
+        hashKnownHosts = false;
+        userKnownHostsFile = "~/.ssh/known_hosts";
+        controlMaster = "no";
+        controlPath = "~/.ssh/master-%r@%n:%p";
+        controlPersist = "no";
+      };
       "raspberrypi5 raspberrypi5.local" = {
         forwardAgent = true;
       };
@@ -57,7 +76,7 @@
     enable = true;
     defaultCacheTtl = 1800;
     enableSshSupport = true;
-    pinentryPackage = pkgs.pinentry-gnome3;
+    pinentry.package = pkgs.pinentry-gnome3;
   };
 
   dconf.settings = {
