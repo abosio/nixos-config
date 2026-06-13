@@ -436,7 +436,34 @@ refactor — reference material for the eventual norfolk spec/plan.**
   WiFi), partition (wipe `sdb`, preserve `sda`), install. Network at first build
   satisfies the `nixos-secrets`-over-SSH dependency in `common.nix`.
 
-### Still to capture on the machine before install
-- `ls -ln /home` and `id abosio` (and any jayme account) → set
-  `users.users.abosio.uid` / `users.users.jayme.uid` to match the existing
-  ownership on the preserved HDD, so file ownership survives the switch to NixOS.
+### User accounts & UID/GID (captured 2026-06-13 — for /home preservation)
+The preserved HDD holds two existing home directories. Ubuntu uses per-user
+primary groups; NixOS defaults users into the shared `users` group (gid 100), so
+to keep file ownership byte-for-byte intact, recreate the accounts AND per-user
+groups with matching numeric IDs:
+
+- **abosio:** `uid = 1000`, primary group `abosio` `gid = 1000`, home `/home/abosio`.
+  Ubuntu supplementary groups were adm/cdrom/sudo/dip/plugdev/lpadmin; on NixOS the
+  existing `users.nix` `extraGroups = [ "networkmanager" "wheel" ]` (wheel = sudo)
+  is sufficient.
+- **jbosio:** `uid = 1001`, primary group `jbosio` `gid = 1001`, home `/home/jbosio`.
+
+**NAME CORRECTION — the second account's username is `jbosio`, not `jayme`.** The
+spec/plan and the commented `norfolk = mkHost { … }` block in `flake.nix` earlier
+used "jayme" (the person's name). The account that actually owns `/home/jbosio` is
+`jbosio`. To preserve the HDD home with no renaming, the NixOS user and the
+home-manager directory should be **`jbosio`** (`home/jbosio/`, not `home/jayme/`),
+and the flake's commented norfolk block updated to `jbosio = import ./home/jbosio`.
+Confirm during the norfolk brainstorm.
+
+Example:
+```nix
+users.groups.abosio.gid = 1000;
+users.groups.jbosio.gid = 1001;
+users.users.abosio = { uid = 1000; group = "abosio"; isNormalUser = true; /* … */ };
+users.users.jbosio = { uid = 1001; group = "jbosio"; isNormalUser = true; /* … */ };
+```
+
+Minor: `/home/abosio` is group-owned by gid 1003 (`myconda`, a conda artifact);
+files created by conda may carry it. Harmless for owner access; `chgrp -R` after
+install if you want it tidy.
