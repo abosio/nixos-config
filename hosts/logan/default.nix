@@ -5,10 +5,8 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/nixos/common.nix
-    ../../modules/nixos/desktop-gnome.nix
     ../../modules/nixos/printing.nix
     ../../modules/nixos/users.nix
-    ../../modules/nixos/amdgpu.nix
     ../../modules/nixos/syncthing.nix
   ];
 
@@ -23,6 +21,32 @@
     device = "raspberrypi5.local:/home/abosio";
     fsType = "nfs";
     options = [ "x-systemd.automount" "noauto" "_netdev" ];
+  };
+
+  # --- GPU (inlined; was amdgpu.nix) ---
+  # AMD GPU drivers for hybrid graphics (RX 7600M + Radeon 680M).
+  services.xserver.videoDrivers = [ "amdgpu" ];
+  hardware.graphics.enable = true;
+  hardware.graphics.enable32Bit = true;
+
+  # --- Desktop (inlined; was desktop-gnome.nix) ---
+  services.xserver.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
+  services.xserver.xkb = {
+    layout = "us";
+    variant = "";
+  };
+  programs.dconf = {
+    enable = true;
+    profiles.user.databases = [{
+      settings = {
+        "org/gnome/terminal/legacy/profiles:/:default" = {
+          font = "Fira Code 14";
+          use-system-font = false;
+        };
+      };
+    }];
   };
 
   # First-install release marker for THIS machine (per-host, never bumped lightly).
