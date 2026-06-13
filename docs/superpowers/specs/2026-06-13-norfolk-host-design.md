@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-13
 **Status:** Approved for planning
-**Builds on:** the completed multi-host refactor (`docs/superpowers/specs/2026-06-02-multi-host-refactor-design.md`, layout currently on branch `refactor-multiple`). The hardware recon for this machine is the "Appendix: Norfolk Hardware Notes" in that spec.
+**Builds on:** the completed multi-host refactor (`docs/superpowers/specs/2026-06-02-multi-host-refactor-design.md`, layout currently on branch `refactor-multiple`). The hardware recon for this machine is in the "Appendix: Hardware Reference" at the end of this spec.
 
 ## Goal
 
@@ -275,4 +275,66 @@ preservation, so the install is deliberate:
 - Replicating Ubuntu MATE's specific theme/layout (upstream MATE defaults; can be
   themed declaratively later if desired).
 - Declarative partitioning (`disko`).
+
+---
+
+## Appendix: Hardware Reference
+
+Captured 2026-06-13 from the working Ubuntu MATE install (hostname `galactica`).
+This is the factual recon the design above is built on.
+
+### GPU
+- NVIDIA **GeForce GTX 1070 Ti**, GP104, **Pascal** [`10de:1b82`].
+- Pascal is supported by the **current** proprietary driver
+  (`nvidiaPackages.stable`/`.production`) — **not** a legacy branch
+  (`legacy_470`/`legacy_390`).
+- `hardware.nvidia.open = false` — Pascal is **not** supported by NVIDIA's open
+  kernel modules; must use the closed modules.
+
+### WiFi
+- Realtek **RTL8192CE** PCIe [`10ec:8178`], in-tree driver `rtl8192ce` (rtlwifi
+  family), interface `wlp28s0`. Firmware is in `linux-firmware` (redistributable).
+- Works out of the box on the NixOS installer ISO — connect with `nmtui`. **This is
+  the primary install network** (see Install procedure); no custom ISO needed.
+- Stability caveat: `rtlwifi`/`rtl8192ce` is known-flaky with power-save. If it
+  drops, add `boot.extraModprobeConfig = "options rtl8192ce ips=0 fwlps=0";`
+  (optionally `swenc=1`). This likely explains the past Ubuntu WiFi pain — power-save
+  flakiness, not a missing driver.
+
+### Ethernet
+- Realtek **RTL8111/8168** [`10ec:8168`], in-tree driver `r8169`, interface
+  `enp24s0`. Available as a fallback, but **not required** — WiFi is the install path.
+
+### Boot mode — UEFI
+- The SSD has a vfat EFI System Partition → norfolk is UEFI → `systemd-boot` +
+  `boot.loader.efi.canTouchEfiVariables = true` (same as Logan).
+
+### CPU / audio
+- AMD CPU (`kvm_amd`) → `hardware.cpu.amd.updateMicrocode = true`.
+- Audio: Realtek ALC662 + NVIDIA HDMI; handled by the existing PipeWire config in
+  `common.nix`.
+
+### Disks
+- **`sda` — PRESERVE.** Single ext4 partition `sda1`, **UUID
+  `26b3c25e-267a-4717-a091-f77f050b01e3`**, ~1.8 TB, currently `/home`. Mount as
+  `/home` by UUID; **do not format**.
+- **`sdb` — install target.** The Ubuntu SSD: ESP (`sdb1` vfat ~1 GB), `/boot`
+  (`sdb2` ext4), LVM root (`sdb3` → `ubuntu--vg-ubuntu--lv`). Repartition for NixOS.
+
+### User accounts & UID/GID (for /home preservation)
+Two existing home directories on the HDD. Ubuntu uses per-user primary groups;
+NixOS defaults users into the shared `users` group (gid 100), so to keep file
+ownership byte-for-byte intact, recreate accounts AND per-user groups with matching
+numeric IDs (done in `hosts/norfolk/default.nix`):
+
+- **abosio:** `uid 1000`, group `abosio` `gid 1000`, home `/home/abosio`. Ubuntu
+  supplementary groups were adm/cdrom/sudo/dip/plugdev/lpadmin; on NixOS
+  `extraGroups = [ "networkmanager" "wheel" ]` (wheel = sudo) is sufficient.
+- **jbosio:** `uid 1001`, group `jbosio` `gid 1001`, home `/home/jbosio`. Non-admin
+  (no `wheel`). The username is **`jbosio`** (Jayme is the person); `/home/jbosio`
+  already exists on the HDD.
+
+Minor: `/home/abosio` is group-owned by gid 1003 (`myconda`, a conda artifact);
+files created by conda may carry it. Harmless for owner access; `chgrp -R` after
+install if you want it tidy.
 ```
