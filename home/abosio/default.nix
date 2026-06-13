@@ -1,6 +1,9 @@
 
 { pkgs, lib, osConfig, ... }:
 
+let
+  hostname = osConfig.networking.hostName;
+in
 {
   imports = [
     ../shared/kitty.nix
@@ -8,12 +11,11 @@
     ../shared/zsh.nix
   ];
 
-  # Host-specific packages for this user. obs-studio everywhere except norfolk;
-  # the commented line shows where a norfolk-only package would go later.
+  # Host-specific packages for this user: obs-studio everywhere except norfolk;
+  # blender only on norfolk.
   home.packages =
-    lib.optional (osConfig.networking.hostName != "norfolk") pkgs.obs-studio
-    # ++ lib.optional (osConfig.networking.hostName == "norfolk") pkgs.pong3d
-    ;
+    lib.optional (hostname != "norfolk") pkgs.obs-studio
+    ++ lib.optional (hostname == "norfolk") pkgs.blender;
 
   home.username = "abosio";
   home.homeDirectory = "/home/abosio";
@@ -78,11 +80,21 @@
     pinentry.package = pkgs.pinentry-gnome3;
   };
 
-  dconf.settings = {
-    "org/gnome/desktop/input-sources" = {
-      xkb-options = ["ctrl:nocaps"];
+  # caps -> ctrl, per desktop environment (abosio only; Jayme is unaffected).
+  dconf.settings =
+    if hostname == "norfolk" then {
+      # MATE keyboard xkb options. NOTE: verify the exact key/value on the machine
+      # (`dconf watch /` while toggling it in MATE keyboard settings). Fallback if
+      # this doesn't take effect: a per-user `setxkbmap -option ctrl:nocaps`
+      # autostart entry (still abosio-only, DE-agnostic).
+      "org/mate/desktop/peripherals/keyboard/kbd" = {
+        options = [ "ctrl\tctrl:nocaps" ];
+      };
+    } else {
+      "org/gnome/desktop/input-sources" = {
+        xkb-options = [ "ctrl:nocaps" ];
+      };
     };
-  };
 
   programs.zsh.shellAliases = {
     # Navigation
