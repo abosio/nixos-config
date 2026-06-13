@@ -56,14 +56,13 @@
         };
       };
 
-      # Future host (separate spec):
-      # norfolk = mkHost {
-      #   hostname = "norfolk";
-      #   users = {
-      #     abosio = import ./home/abosio;
-      #     jayme = import ./home/jayme;
-      #   };
-      # };
+      norfolk = mkHost {
+        hostname = "norfolk";
+        users = {
+          abosio = import ./home/abosio;
+          jbosio = import ./home/jbosio;
+        };
+      };
     };
   };
 }
