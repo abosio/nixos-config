@@ -375,3 +375,68 @@ in
 Update `CLAUDE.md` "File Organization" and the "Adding Configurations" sections to
 reflect the `hosts/` + `modules/` + `home/<user>/` layout once the refactor is
 verified.
+
+---
+
+## Appendix: Norfolk Hardware Notes
+
+Captured 2026-06-13 from the working Ubuntu MATE install on the desktop (its
+Ubuntu hostname is currently `galactica`; the NixOS host will be `norfolk`). These
+pin the future norfolk modules to real hardware. **Out of scope for the Logan
+refactor — reference material for the eventual norfolk spec/plan.**
+
+### GPU — supersedes the mentor doc's "legacy NVIDIA" assumption
+- NVIDIA **GeForce GTX 1070 Ti**, GP104, **Pascal** [`10de:1b82`].
+- Use the **current** proprietary driver: `services.xserver.videoDrivers = [ "nvidia" ]`
+  with `hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable`
+  (or `.production`). **NOT** `legacy_470`/`legacy_390` — Pascal is supported by the
+  mainline branch.
+- `hardware.nvidia.open = false` — Pascal is **not** supported by NVIDIA's open
+  kernel modules; must use the closed modules.
+- `hardware.nvidia.modesetting.enable = true`, `nvidiaSettings = true`.
+- A future `modules/nixos/nvidia.nix` (imported by norfolk instead of `amdgpu.nix`).
+
+### WiFi — in-tree, no custom ISO needed
+- Realtek **RTL8192CE** PCIe [`10ec:8178`], in-tree driver `rtl8192ce` (rtlwifi
+  family), interface `wlp28s0`. Firmware is in `linux-firmware` (redistributable).
+- Works out of the box on the stock NixOS installer ISO — connect with `nmtui`.
+- Stability caveat: `rtlwifi`/`rtl8192ce` is known-flaky with power-save. If it
+  drops, add `boot.extraModprobeConfig = "options rtl8192ce ips=0 fwlps=0";`
+  (optionally `swenc=1`). This likely explains the past Ubuntu WiFi pain — it was
+  power-save flakiness, not a missing driver.
+- Set `hardware.enableRedistributableFirmware = true`.
+
+### Ethernet — available (safe first-boot network)
+- Realtek **RTL8111/8168** [`10ec:8168`], in-tree driver `r8169`, interface
+  `enp24s0`. Currently `NO-CARRIER` only because no cable is plugged in. Plugging
+  in ethernet is the simplest first-boot network for the install.
+
+### Boot mode — UEFI
+- The SSD has a vfat EFI System Partition, so norfolk is UEFI → use
+  `systemd-boot` + `boot.loader.efi.canTouchEfiVariables = true` (same as Logan).
+  This refines the spec's "bootloader is per-host (norfolk may be BIOS)" note:
+  norfolk is confirmed UEFI.
+
+### CPU / audio
+- AMD CPU (`kvm_amd`) → `hardware.cpu.amd.updateMicrocode = true`.
+- Audio: Realtek ALC662 + NVIDIA HDMI; handled by the existing PipeWire config in
+  `common.nix`.
+
+### Disks
+- **`sda` — PRESERVE.** Single ext4 partition `sda1`, **UUID
+  `26b3c25e-267a-4717-a091-f77f050b01e3`**, ~1.8 TB, currently `/home`. Mount as
+  `/home` by UUID in norfolk's config; **do not format**.
+- **`sdb` — install target.** The Ubuntu SSD: ESP (`sdb1` vfat ~1 GB), `/boot`
+  (`sdb2` ext4), LVM root (`sdb3` → `ubuntu--vg-ubuntu--lv`). Repartition this for
+  NixOS during install. The existing ESP can be reused or recreated.
+
+### Install-path implications
+- In-tree WiFi + working ethernet ⇒ **no custom installer ISO and no offline
+  closure copy needed**. Standard flow: boot stock NixOS ISO, connect (ethernet or
+  WiFi), partition (wipe `sdb`, preserve `sda`), install. Network at first build
+  satisfies the `nixos-secrets`-over-SSH dependency in `common.nix`.
+
+### Still to capture on the machine before install
+- `ls -ln /home` and `id abosio` (and any jayme account) → set
+  `users.users.abosio.uid` / `users.users.jayme.uid` to match the existing
+  ownership on the preserved HDD, so file ownership survives the switch to NixOS.
