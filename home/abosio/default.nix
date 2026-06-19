@@ -9,6 +9,8 @@ in
     ../shared/kitty.nix
     ../shared/packages.nix
     ../shared/zsh.nix
+    ./aliases.nix
+    (import ./git.nix { email = "bosio76@gmail.com"; })
   ];
 
   # Host-specific packages for this user: obs-studio everywhere except norfolk;
@@ -96,25 +98,8 @@ in
       };
     };
 
+  # Base aliases come from ./aliases.nix; this is the Linux-only one.
   programs.zsh.shellAliases = {
-    # Navigation
-    ls = "eza";
-    ll = "eza -l";
-    la = "eza -la";
-
-    # Convenience
-    grep = "grep --color=auto";
-    cat = "bat -pp"; # A better 'cat'
-
-    # Safety
-    cp = "cp -i";
-    mv = "mv -i";
-    rm = "rm -i";
-
-    # show history from first entry
-    history = "history 1";
-
-    # Sync
     syncbooks = "rsync -avh --delete  '/home/abosio/Sync/Calibre Library/' /mnt/pi/services/calibre/library/";
   };
 

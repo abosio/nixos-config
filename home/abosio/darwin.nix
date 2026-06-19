@@ -3,7 +3,8 @@
 {
   imports = [
     ../shared/zsh.nix
-    ../shared/git.nix
+    ./aliases.nix
+    (import ./git.nix { email = "abosio@sixfeetup.com"; })
   ];
 
   home.username = "abosio";
@@ -12,11 +13,16 @@
 
   programs.home-manager.enable = true;
 
+  # direnv (replaces the manual hook/export below; cross-platform HM module).
+  programs.direnv = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+
   home.packages = [
     pkgs-unstable.codex
     pkgs-unstable.devenv
     pkgs.bat
-    pkgs.direnv
     pkgs.eza
     pkgs.ffmpeg
     pkgs.gh
@@ -41,28 +47,15 @@
 
   home.sessionPath = [ "$HOME/.npm-global/bin" ];
 
-  programs.zsh.shellAliases = {
-    ls = "eza";
-    ll = "eza -l";
-    la = "eza -la";
-    grep = "grep --color=auto";
-    cat = "bat -pp";
-    cp = "cp -i";
-    mv = "mv -i";
-    rm = "rm -i";
-    history = "history 1";
-  };
+  # Base aliases (ls/ll/la/grep/cat/cp/mv/rm/history) come from ./aliases.nix.
 
   programs.zsh.initContent = lib.mkMerge [
   # Content that must appear before p10k instant prompt
   (lib.mkBefore ''
-    # Nix daemon — ensure Nix is on PATH before direnv export runs
+    # Nix daemon — ensure Nix is on PATH early
     if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
       . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
     fi
-
-    # direnv export — must precede p10k instant prompt
-    (( ''${+commands[direnv]} )) && emulate zsh -c "$(direnv export zsh)"
 
     # p10k instant prompt
     if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
@@ -113,9 +106,6 @@
 
     # PIPX
     export PATH="$PATH:/Users/abosio/.local/bin"
-
-    # direnv hook — must be at end
-    (( ''${+commands[direnv]} )) && emulate zsh -c "$(direnv hook zsh)"
 
     # MISE — TODO: remove when xoit project wraps up
     eval "$(~/.local/bin/mise activate zsh)"

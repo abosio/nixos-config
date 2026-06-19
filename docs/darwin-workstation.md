@@ -8,8 +8,9 @@ This document covers managing the macOS workstation via standalone Home Manager.
 |---|---|
 | `flake.nix` | Declares `homeConfigurations."abosio"` for `aarch64-darwin` |
 | `home/abosio/darwin.nix` | macOS entry point: packages, env vars, zsh config |
-| `home/shared/zsh.nix` | Shared zsh framework (all hosts, including macOS) |
-| `home/shared/git.nix` | Git identity, global ignores (all hosts) |
+| `home/shared/zsh.nix` | Shared zsh **framework only** — no aliases (all hosts, incl. macOS) |
+| `home/abosio/aliases.nix` | abosio's base shell aliases (all of abosio's profiles) |
+| `home/abosio/git.nix` | abosio's git identity + ignores; email set per profile (abosio only) |
 
 ## Applying Changes
 
@@ -33,9 +34,9 @@ home.packages = [
 ];
 ```
 
-### Packages for all hosts (macOS + Linux)
+### Packages on the NixOS hosts (not the Mac)
 
-Edit `home/shared/packages.nix`. Be careful: this is also imported by the NixOS hosts, so only add packages that build on both Linux and Darwin. Linux-only packages (e.g. `cliphist`, `wl-clipboard`, `tigervnc`) must stay Linux-side.
+`home/shared/packages.nix` is abosio's package set for the **NixOS hosts only** — it is *not* imported by the macOS config (it holds Linux GUI apps like `vivaldi`, `signal-desktop`, `tigervnc`). There is **no auto-shared package list** between macOS and Linux: put macOS packages in `darwin.nix` and Linux packages in `home/shared/packages.nix`. To have a package on both, add it in both places (check it builds on Darwin first).
 
 ### Finding packages
 
@@ -67,14 +68,14 @@ programs.foo = {
 
 | Program | Module location | Notes |
 |---|---|---|
-| zsh | `home/shared/zsh.nix` + `darwin.nix` | Framework in shared; macOS-specific init in darwin.nix |
-| git | `home/shared/git.nix` | Identity + global ignores; all hosts |
+| zsh | `home/shared/zsh.nix` + `home/abosio/aliases.nix` + `darwin.nix` | Framework in shared (no aliases); base aliases in aliases.nix; macOS init in darwin.nix |
+| git | `home/abosio/git.nix` | abosio's identity + ignores; email per profile (work on macOS, personal on NixOS). Not for other users. |
 | p10k | `darwin.nix` initContent | Theme sourced from `pkgs.zsh-powerlevel10k`; configure via `p10k configure` |
-| direnv | `darwin.nix` initContent | Export (pre-prompt) and hook both managed manually |
+| direnv | `darwin.nix` (`programs.direnv`) | Managed by the Home Manager module (zsh integration enabled) |
 
 ### Shell aliases
 
-- **All hosts:** Add to `programs.zsh.shellAliases` in `home/shared/zsh.nix`
+- **All of abosio's machines:** Add to `home/abosio/aliases.nix` (imported by both the NixOS and macOS profiles). Do **not** add aliases to `home/shared/zsh.nix` — it is framework-only and is imported by other users (e.g. `jbosio`).
 - **macOS-only:** Add to `programs.zsh.shellAliases` in `darwin.nix`, or as `alias foo=...` in the `initContent` block for aliases with complex quoting
 
 ### Shell functions

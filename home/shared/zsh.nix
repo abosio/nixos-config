@@ -40,11 +40,6 @@
       bindkey '^ ' autosuggest-accept
       bindkey -v
       bindkey '^R' history-incremental-search-backward
-
-      # Joplin backup aliases (all hosts)
-      alias jc="ssh 192.168.50.236 'ls joplin-backups'"
-      alias jcplog="ssh 192.168.50.236 'cat services/scripts/joplin-backups.log' | less"
-      alias jcp="ssh 192.168.50.236 'ls -lah joplin-backups && ls -lah \"\$(ls -td joplin-backups/*/ | head -1)\" && du -sh \"\$(ls -td joplin-backups/*/ | head -1)\"' && ssh abosio@nostromo.local 'ls -la /volume1/NetBackup/joplin-backups'"
     '';
   };
 }
