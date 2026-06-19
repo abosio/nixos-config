@@ -18,15 +18,21 @@
   };
   outputs = inputs@{ self, nixpkgs, nixpkgs-unstable, home-manager, sops-nix, nixos-secrets }:
   let
-    system = "x86_64-linux";
-    pkgs-unstable = import nixpkgs-unstable {
-      inherit system;
+    linuxSystem = "x86_64-linux";
+    darwinSystem = "aarch64-darwin";
+
+    pkgs-unstable-linux = import nixpkgs-unstable {
+      system = linuxSystem;
+      config.allowUnfree = true;
+    };
+    pkgs-unstable-darwin = import nixpkgs-unstable {
+      system = darwinSystem;
       config.allowUnfree = true;
     };
 
     mkHost = { hostname, users }:
       nixpkgs.lib.nixosSystem {
-        inherit system;
+        system = linuxSystem;
 
         specialArgs = {
           inherit inputs;
@@ -40,7 +46,7 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.extraSpecialArgs = {
-              inherit pkgs-unstable;
+              pkgs-unstable = pkgs-unstable-linux;
             };
             home-manager.users = users;
           }
@@ -63,6 +69,14 @@
           jbosio = import ./home/jbosio;
         };
       };
+    };
+
+    homeConfigurations."abosio" = home-manager.lib.homeManagerConfiguration {
+      pkgs = nixpkgs.legacyPackages.${darwinSystem};
+      extraSpecialArgs = {
+        pkgs-unstable = pkgs-unstable-darwin;
+      };
+      modules = [ ./home/abosio/darwin.nix ];
     };
   };
 }
