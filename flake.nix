@@ -72,7 +72,10 @@
     };
 
     homeConfigurations."abosio" = home-manager.lib.homeManagerConfiguration {
-      pkgs = nixpkgs.legacyPackages.${darwinSystem};
+      pkgs = import nixpkgs {
+        system = darwinSystem;
+        config.allowUnfree = true;
+      };
       extraSpecialArgs = {
         pkgs-unstable = pkgs-unstable-darwin;
       };

@@ -4,34 +4,20 @@ Tracked rough edges in the standalone Home Manager config for the macOS workstat
 (`home/abosio/darwin.nix` + the `homeConfigurations."abosio"` flake output). None
 are currently breaking the build; they are fragilities to clean up.
 
-## 1. Stable Darwin `pkgs` has no `allowUnfree`
+## 1. Stable Darwin `pkgs` has no `allowUnfree` — RESOLVED (2026-06-19)
 
-`flake.nix` builds the macOS home config with:
+Previously the macOS home config built with `pkgs = nixpkgs.legacyPackages.${darwinSystem}`,
+which uses default config (`allowUnfree = false`) — so the **stable** package set
+would reject the first unfree package added (while `pkgs-unstable-darwin` already
+allowed them, an inconsistency). Fixed in `flake.nix` by constructing `pkgs`
+explicitly:
 
 ```nix
-homeConfigurations."abosio" = home-manager.lib.homeManagerConfiguration {
-  pkgs = nixpkgs.legacyPackages.${darwinSystem};   # <-- no config.allowUnfree
-  ...
+pkgs = import nixpkgs {
+  system = darwinSystem;
+  config.allowUnfree = true;
 };
 ```
-
-`legacyPackages` does not carry `config.allowUnfree = true`, so the **stable**
-package set rejects unfree packages. It evaluates today only because nothing in the
-current `home.packages` stable list is unfree. (`pkgs-unstable-darwin` *does* set
-`allowUnfree`, so `pkgs-unstable.*` packages are fine.)
-
-- **Impact:** the first time an unfree *stable* package is added to `darwin.nix`
-  (or pulled in transitively), the build fails with an "unfree" error.
-- **Fix (flake-side, not machine-specific):** replace the `pkgs` line with an
-  explicit import that sets the config:
-  ```nix
-  pkgs = import nixpkgs {
-    system = darwinSystem;
-    config.allowUnfree = true;
-  };
-  ```
-- **Status:** deferred. This is a one-line flake change and could be applied at any
-  time; it does not require the workstation.
 
 ## 2. Hardcoded Homebrew OpenSSL version in `CPPFLAGS`/`LDFLAGS`
 
