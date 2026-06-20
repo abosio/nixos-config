@@ -10,7 +10,17 @@
 
 **Spec:** `docs/superpowers/specs/2026-06-13-norfolk-host-design.md`
 
-**Prerequisite:** the multi-host refactor layout is in place (branch `refactor-multiple`). Do this work on that branch (or a branch off it).
+**Prerequisite:** the multi-host refactor layout is in place. This work now lives on branch **`refactor-multiple-mac`** (which also carries the independent macOS-workstation config — see below).
+
+---
+
+## STATUS (updated 2026-06-19)
+
+- **Phases 0 and 1 are COMPLETE** on `refactor-multiple-mac` (Tasks 0–8: module consolidation, the norfolk host file, jbosio home, flake `norfolk` entry, abosio's host-conditional blender + caps→ctrl, CLAUDE.md — all done and verified). The `norfolk` attribute evaluates against a **temporary stub** `hosts/norfolk/hardware-configuration.nix`.
+- **Only Phase 2 (Tasks 9–12) remains** — the on-the-machine install. **Skip to Task 9.**
+- **About the "Logan byte-identical" gates below:** they applied *during* Phases 0–1 and passed. Logan has since intentionally changed (26.05 deprecation-warning cleanup; abosio git identity added; the macOS branch's shared-module edits), so it is no longer identical to the original refactor baseline — that's expected and fine. Phase 2 runs entirely on the norfolk machine and does **not** modify Logan's config, so Logan is unaffected by the remaining work. The `GATE-LOGAN` baseline file (`/tmp/norfolk-logan-baseline`) from Phases 0–1 will not exist in a fresh session; Phase 2 does not need it.
+- **macOS note:** the same branch defines `homeConfigurations."abosio"` (aarch64-darwin). It is independent of the norfolk install — building `.#nixosConfigurations.norfolk` does not involve the darwin output, and vice versa.
+- **Before Phase 2:** push the latest branch so norfolk can clone it (local commits may be unpushed): `git push origin refactor-multiple-mac` (or merge to `main` and push).
 
 ---
 
@@ -597,7 +607,7 @@ grep -A3 'fileSystems."/"' /mnt/etc/nixos/hardware-configuration.nix
 
 - [ ] **Step 0 (PREREQUISITE, done earlier on Logan): make the branch reachable**
 
-norfolk clones the config over the network, so the branch carrying norfolk must be pushed (or merged to `main`) **before** this step. From Logan: `git push -u origin refactor-multiple` (or merge to `main` and push). Confirm `git ls-remote origin refactor-multiple` shows the commit.
+norfolk clones the config over the network, so the branch carrying norfolk must be pushed (or merged to `main`) **before** this step. From Logan: `git push origin refactor-multiple-mac` (or merge to `main` and push). Confirm `git ls-remote origin refactor-multiple-mac` (or `main`) shows the latest commit.
 
 - [ ] **Step 1: Get the repo and SSH access to nixos-secrets**
 
@@ -605,7 +615,7 @@ Clone the config and ensure SSH auth to the secrets repo works (the flake's `com
 ```bash
 git clone git@github.com:abosio/nixos-config.git /mnt/home/abosio/nixos-config
 cd /mnt/home/abosio/nixos-config
-git checkout refactor-multiple        # the branch with norfolk (or main, if merged)
+git checkout refactor-multiple-mac    # the branch with norfolk (or main, if merged)
 ssh -T abosio@abosio.com -p 1022 || true   # confirm the secrets-repo key is available (1Password/agent)
 ```
 (HTTPS clone is fine too if SSH to GitHub isn't set up on the live ISO — only `nixos-secrets` strictly needs SSH auth.)
@@ -696,11 +706,15 @@ systemctl status syncthing.service
 
 ---
 
-## Task 12: Final review and Logan re-confirmation
+## Task 12: Final review
 
-- [ ] **Step 1: Re-confirm Logan is untouched**
+- [ ] **Step 1: Confirm Phase 2 only touched the norfolk hardware file**
 
-Back on Logan (or from any checkout of the branch), run the **GATE-LOGAN** block one final time. Expected: `✓ LOGAN PRESERVED` — the entire norfolk addition left Logan's system identical.
+Phase 2 must not change any shared or Logan config — its only repo change is the real `hosts/norfolk/hardware-configuration.nix` (replacing the stub). Confirm with:
+```bash
+git diff --stat <commit-before-phase-2>..HEAD
+```
+Expected: only `hosts/norfolk/hardware-configuration.nix` is changed. (A full `GATE-LOGAN` byte-comparison isn't meaningful here — Logan changed intentionally after Phases 0–1, and the baseline file is gone. The point is simply that the install added the norfolk hardware file and nothing else.) Logan can be rebuilt independently and is unaffected.
 
 - [ ] **Step 2: Confirm the tree shape**
 
@@ -718,4 +732,4 @@ To pair Logan and norfolk (beyond gotham/MBP): grab norfolk's syncthing device I
 
 ## Done
 
-norfolk runs MATE on the NVIDIA driver with both users' `/home` preserved; the module layout is consolidated to `{common, printing, syncthing, users}`; and Logan is provably unchanged throughout. The temporary stub hardware file is replaced by the machine's real one. Follow-up: logan↔norfolk syncthing pairing (Task 12 Step 3).
+norfolk runs MATE on the NVIDIA driver with both users' `/home` preserved; the module layout is consolidated to `{common, printing, syncthing, users}`; and Logan is unaffected by the on-machine install (it was rebuilt/activated separately during the earlier phases). The temporary stub hardware file is replaced by the machine's real one. Follow-up: logan↔norfolk syncthing pairing (Task 12 Step 3).
