@@ -19,52 +19,17 @@ pkgs = import nixpkgs {
 };
 ```
 
-## 2. Hardcoded Homebrew OpenSSL version in `CPPFLAGS`/`LDFLAGS`
+## 2. Hardcoded Homebrew OpenSSL version in `CPPFLAGS`/`LDFLAGS` — RESOLVED (2026-06-21)
 
-`darwin.nix` sets:
+Previously `darwin.nix` pinned an explicit Homebrew path that broke on `brew upgrade openssl@3`.
+Fixed by adding `pkgs.openssl` to `home.packages` and switching to Nix-store paths:
 
 ```nix
-CPPFLAGS = "-I/opt/homebrew/opt/openssl@3/3.3.1/include";
-LDFLAGS  = "-L/opt/homebrew/opt/openssl@3/3.3.1/lib";
+CPPFLAGS = "-I${pkgs.openssl.dev}/include";
+LDFLAGS  = "-L${pkgs.openssl.out}/lib";
 ```
 
-The pinned `3.3.1` path breaks on the next `brew upgrade openssl@3` (the versioned
-directory changes).
+## 3. direnv ↔ p10k instant-prompt ordering — RESOLVED (2026-06-21)
 
-- **Recommendation (preferred): use Nix-provided OpenSSL** — reproducible and drops
-  the Homebrew dependency for these flags:
-  ```nix
-  # add pkgs.openssl to home.packages, then:
-  CPPFLAGS = "-I${pkgs.openssl.dev}/include";
-  LDFLAGS  = "-L${pkgs.openssl.out}/lib";
-  ```
-  Verify the affected builds (Python C-extensions via pip/pyenv, node-gyp, etc.)
-  are happy with Nix's OpenSSL before committing.
-- **Recommendation (minimal): unpin via `brew --prefix`** — stays on Homebrew but
-  removes the version pin (resolved at shell-source time):
-  ```nix
-  CPPFLAGS = "-I$(brew --prefix openssl@3)/include";
-  LDFLAGS  = "-L$(brew --prefix openssl@3)/lib";
-  ```
-- **Status:** to be addressed on the workstation (it affects local dev builds, so
-  verify there).
-
-## 3. direnv ↔ p10k instant-prompt ordering (verify after the `programs.direnv` switch)
-
-direnv was switched from a hand-written hook in `initContent` to the Home Manager
-module (`programs.direnv = { enable = true; enableZshIntegration = true; }`). The
-old config ran `direnv export` *before* the p10k instant prompt to avoid the
-"console output during zsh initialization" warning.
-
-- **Verify on the machine:** open a new shell, and `cd` into a directory with an
-  `.envrc`. If powerlevel10k shows an instant-prompt warning about console output:
-  - **Fallback:** re-add, in the `lib.mkBefore` `initContent` block (before the
-    instant-prompt source), an explicit pre-prompt export:
-    ```sh
-    (( ${+commands[direnv]} )) && emulate zsh -c "$(direnv export zsh)"
-    ```
-    and set `programs.direnv.enableZshIntegration = false` so the module doesn't
-    also add a hook.
-- **Optional enhancement:** add `programs.direnv.nix-direnv.enable = true;` for
-  cached `use nix`/`use flake` environments.
-- **Status:** verify on the workstation after the next `home-manager switch`.
+After switching to `programs.direnv`, no instant-prompt warning observed. The HM module
+places the hook correctly relative to p10k. No fallback needed.

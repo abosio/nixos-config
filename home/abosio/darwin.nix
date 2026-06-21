@@ -23,6 +23,7 @@
     pkgs-unstable.codex
     pkgs-unstable.devenv
     pkgs.bat
+    pkgs.openssl
     pkgs.eza
     pkgs.ffmpeg
     pkgs.gh
@@ -40,8 +41,8 @@
   home.sessionVariables = {
     XOI_STAGE = "abosio";
     PIP_REQUIRE_VIRTUALENV = "true";
-    CPPFLAGS = "-I/opt/homebrew/opt/openssl@3/3.3.1/include";
-    LDFLAGS = "-L/opt/homebrew/opt/openssl@3/3.3.1/lib";
+    CPPFLAGS = "-I${pkgs.openssl.dev}/include";
+    LDFLAGS = "-L${pkgs.openssl.out}/lib";
     NPM_CONFIG_PREFIX = "$HOME/.npm-global";
   };
 
