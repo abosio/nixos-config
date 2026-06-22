@@ -157,7 +157,7 @@ home-manager expire-generations "-30 days"
 
 ### mise
 
-mise is temporarily active (`# TODO: remove when xoit project wraps up` in `darwin.nix`). Once the xoit project wraps up, remove the `eval "$(~/.local/bin/mise activate zsh)"` line from the `lib.mkAfter` initContent block in `darwin.nix`.
+mise is temporarily active (`# TODO: remove when related project wraps up` in `darwin.nix`). Once the project wraps up, remove the `eval "$(~/.local/bin/mise activate zsh)"` line from the `lib.mkAfter` initContent block in `darwin.nix`.
 
 ### pyenv
 
