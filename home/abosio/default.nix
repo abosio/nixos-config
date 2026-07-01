@@ -8,6 +8,7 @@ in
   imports = [
     ../shared/kitty.nix
     ../shared/packages.nix
+    ../shared/vim.nix
     ../shared/zsh.nix
     ./aliases.nix
     (import ./git.nix { email = "bosio76@gmail.com"; })

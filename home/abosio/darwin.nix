@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ../shared/vim.nix
     ../shared/zsh.nix
     ./aliases.nix
     (import ./git.nix { email = "abosio@sixfeetup.com"; })
