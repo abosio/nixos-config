@@ -23,6 +23,7 @@
   home.packages = [
     pkgs-unstable.codex
     pkgs-unstable.devenv
+    pkgs.awscli2
     pkgs.bat
     pkgs.openssl
     pkgs.eza
