@@ -17,6 +17,11 @@ in
     configDir = "/home/abosio/.config/syncthing";
     settings = {
       devices = devices;
+      folders."default" = {
+        label = "Default Folder";
+        path = "/home/abosio/Sync";
+        devices = builtins.attrNames devices;
+      };
     };
   };
 }
