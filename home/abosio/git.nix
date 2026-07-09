@@ -28,7 +28,6 @@
   xdg.configFile."git/ignore-hm".text = ''
     .envrc
     .aider*
-    .vscode
     **/.claude/settings.local.json
   '';
 }
