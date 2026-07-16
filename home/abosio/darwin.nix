@@ -25,6 +25,7 @@
     pkgs-unstable.devenv
     pkgs.awscli2
     pkgs.bat
+    pkgs.dust
     pkgs.openssl
     pkgs.eza
     pkgs.ffmpeg

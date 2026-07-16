@@ -10,6 +10,7 @@
     pkgs.claude-code
     pkgs.cliphist
     pkgs.docker
+    pkgs.dust
     pkgs.eza
     pkgs.fira-code
     pkgs.git
