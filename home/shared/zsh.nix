@@ -40,6 +40,9 @@
       bindkey '^ ' autosuggest-accept
       bindkey -v
       bindkey '^R' history-incremental-search-backward
+      # vi keymap leaves ^A/^E as self-insert; restore emacs-style line navigation
+      bindkey '^A' beginning-of-line
+      bindkey '^E' end-of-line
     '';
   };
 }
