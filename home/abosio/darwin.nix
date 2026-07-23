@@ -35,7 +35,6 @@
     pkgs.mkcert
     pkgs.mpv
     pkgs.nssTools
-    pkgs.nodejs
     pkgs.tmux
     pkgs.zoxide
     pkgs.zsh-powerlevel10k
@@ -46,10 +45,7 @@
     PIP_REQUIRE_VIRTUALENV = "true";
     CPPFLAGS = "-I${pkgs.openssl.dev}/include";
     LDFLAGS = "-L${pkgs.openssl.out}/lib";
-    NPM_CONFIG_PREFIX = "$HOME/.npm-global";
   };
-
-  home.sessionPath = [ "$HOME/.npm-global/bin" ];
 
   # Base aliases (ls/ll/la/grep/cat/cp/mv/rm/history) come from ./aliases.nix.
 
@@ -80,6 +76,12 @@
       [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
       eval "$(pyenv init -)"
     fi
+
+    # NVM
+    export NVM_DIR="$HOME/.nvm"
+    mkdir -p "$NVM_DIR"
+    [ -s "$(brew --prefix)/opt/nvm/nvm.sh" ] && \. "$(brew --prefix)/opt/nvm/nvm.sh"
+    [ -s "$(brew --prefix)/opt/nvm/etc/bash_completion.d/nvm" ] && \. "$(brew --prefix)/opt/nvm/etc/bash_completion.d/nvm"
 
     # BREW autocomplete
     if type brew &>/dev/null; then
