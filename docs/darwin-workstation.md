@@ -72,6 +72,7 @@ programs.foo = {
 | git | `home/abosio/git.nix` | abosio's identity + ignores; email per profile (work on macOS, personal on NixOS). Not for other users. |
 | p10k | `darwin.nix` initContent | Theme sourced from `pkgs.zsh-powerlevel10k`; configure via `p10k configure` |
 | direnv | `darwin.nix` (`programs.direnv`) | Managed by the Home Manager module (zsh integration enabled) |
+| cld / cdx | `home/abosio/ai-cli-wrappers.nix` | On-demand wrappers for `claude`/`codex` that resolve an `op://` reference from `OP_ANTHROPIC_API_KEY`/`OP_OPENAI_API_KEY` via `op read` at launch time, instead of direnv resolving it eagerly on every `cd` |
 
 ### Shell aliases
 
@@ -81,6 +82,26 @@ programs.foo = {
 ### Shell functions
 
 Add to the `lib.mkAfter` `initContent` block in `darwin.nix`. Example of the existing `shrink-video` function.
+
+### AI CLI key wrappers (`cld` / `cdx`)
+
+`cld` wraps `claude`; `cdx` wraps `codex`. Each resolves an `op://` 1Password
+reference into the real API key only when you run it — not eagerly on every
+`cd` the way a direnv-driven `op` call would (that pattern is what caused
+slow/hanging terminals after an idle period).
+
+Set the reference (not the real secret) in `.envrc` or your shell env:
+
+```bash
+export OP_ANTHROPIC_API_KEY="op://vault/item/field"
+export OP_OPENAI_API_KEY="op://vault/item/field"
+```
+
+Running `cld`/`cdx` then calls `op read` once, exports the resolved key
+(`ANTHROPIC_API_KEY` / `OPENAI_API_KEY`), and execs the real CLI. If the
+reference isn't set, or `op read` fails, you're prompted:
+`Continue without an API key? [y/N]` — yes launches the CLI with no key
+exported (falls back to its own subscription/login auth), no aborts.
 
 ### Environment variables
 
