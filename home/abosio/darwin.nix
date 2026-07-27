@@ -1,5 +1,8 @@
 { pkgs, pkgs-unstable, lib, ... }:
 
+let
+  aiCliWrappers = import ./ai-cli-wrappers.nix { inherit pkgs; };
+in
 {
   imports = [
     ../shared/vim.nix
@@ -38,6 +41,8 @@
     pkgs.tmux
     pkgs.zoxide
     pkgs.zsh-powerlevel10k
+    aiCliWrappers.cld
+    aiCliWrappers.cdx
   ];
 
   home.sessionVariables = {
