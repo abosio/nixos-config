@@ -24,11 +24,11 @@ let
         resolve_failed "${opEnvVar} is not set." "$@"
       fi
 
-      if key="$(op read "$ref" 2>&1)"; then
+      if key="$(op read "$ref")" && [[ -n "$key" ]]; then
         export ${exportVar}="$key"
         exec ${binary} "$@"
       else
-        resolve_failed "op read failed: $key" "$@"
+        resolve_failed "op read failed (see error above, if any)." "$@"
       fi
     '';
 in

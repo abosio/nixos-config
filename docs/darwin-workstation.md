@@ -101,7 +101,7 @@ Running `cld`/`cdx` then calls `op read` once, exports the resolved key
 (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY`), and execs the real CLI. If the
 reference isn't set, or `op read` fails, you're prompted:
 `Continue without an API key? [y/N]` — yes launches the CLI with no key
-exported (falls back to its own subscription/login auth), no aborts.
+exported (falls back to its own subscription/login auth), answering no aborts.
 
 ### Environment variables
 
