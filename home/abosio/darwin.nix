@@ -26,6 +26,7 @@ in
   home.packages = [
     pkgs-unstable.codex
     pkgs-unstable.devenv
+    pkgs-unstable.llama-cpp
     pkgs.awscli2
     pkgs.bat
     pkgs.dust
