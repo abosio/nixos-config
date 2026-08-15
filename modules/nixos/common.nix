@@ -13,6 +13,12 @@
   system.autoUpgrade.enable = true;
   system.autoUpgrade.allowReboot = false;
 
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 90d";
+  };
+
   networking.networkmanager.enable = true;
   networking.extraHosts = ''
     167.71.175.50   git.abosio.com
