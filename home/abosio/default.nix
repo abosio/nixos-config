@@ -97,6 +97,9 @@ in
       "org/gnome/desktop/input-sources" = {
         xkb-options = [ "ctrl:nocaps" ];
       };
+      "org/gnome/shell" = {
+        enabled-extensions = [ "tailscale-gnome-qs@tailscale-qs.github.io" ];
+      };
     };
 
   # Base aliases come from ./aliases.nix; this is the Linux-only one.

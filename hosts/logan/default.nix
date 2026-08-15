@@ -61,6 +61,8 @@
     }];
   };
 
+  environment.systemPackages = [ pkgs.gnomeExtensions.tailscale-qs ];
+
   # First-install release marker for THIS machine (per-host, never bumped lightly).
   system.stateVersion = "25.05";
 }
