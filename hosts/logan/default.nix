@@ -63,6 +63,18 @@
 
   environment.systemPackages = [ pkgs.gnomeExtensions.tailscale-qs ];
 
+  # --- Super key fix ---
+  # The TUF Gaming A16 FA617NT's firmware routes the physical Super key through
+  # the "Asus WMI hotkeys" virtual device as unmapped scancode 0x4f (KEY_UNKNOWN)
+  # instead of KEY_LEFTMETA on the real keyboard, so GNOME never sees a Super
+  # press (overlay-key, Super+Left/Right tiling, etc. silently do nothing).
+  # systemd's stock 60-keyboard.hwdb has no entry for this model; this adds one.
+  # Diagnosed 2026-08-29 via `libinput debug-events` + `evtest`.
+  services.udev.extraHwdb = ''
+    evdev:name:Asus WMI hotkeys:dmi:bvn*:bvr*:bd*:svnASUSTeKCOMPUTERINC.:pnASUSTUFGamingA16FA617NT_FA617NT:*
+     KEYBOARD_KEY_4f=leftmeta
+  '';
+
   # First-install release marker for THIS machine (per-host, never bumped lightly).
   system.stateVersion = "25.05";
 }
