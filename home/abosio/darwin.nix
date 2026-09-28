@@ -2,6 +2,8 @@
 
 let
   aiCliWrappers = import ./ai-cli-wrappers.nix { inherit pkgs; };
+  # notion-cli isn't in nixpkgs; see pkgs/notion-cli.
+  notion-cli = pkgs.callPackage ../../pkgs/notion-cli { };
 in
 {
   imports = [
@@ -42,6 +44,7 @@ in
     pkgs.tmux
     pkgs.zoxide
     pkgs.zsh-powerlevel10k
+    notion-cli
     aiCliWrappers.cld
     aiCliWrappers.cdx
   ];

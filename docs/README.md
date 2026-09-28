@@ -7,6 +7,7 @@ This directory contains detailed documentation for various aspects of the NixOS 
 ### macOS Workstation
 - [Darwin Workstation](darwin-workstation.md) - Managing packages, dotfiles, and Home Manager on the macOS workstation
 - [Darwin Known Issues](darwin-known-issues.md) - Tracked rough edges to clean up on the macOS config (allowUnfree, OpenSSL flags, direnv/p10k)
+- [notion-cli](notion-cli.md) - Locally packaged Notion CLI: how it is built and how to bump the version
 
 ### Hardware & Peripherals
 - [Printer Setup](printer-setup.md) - Guide for discovering, configuring, and troubleshooting network printers on NixOS
