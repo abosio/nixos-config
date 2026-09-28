@@ -25,6 +25,16 @@ in
     enableZshIntegration = true;
   };
 
+  # GitHub CLI. The module installs pkgs.gh and links extensions into
+  # ~/.local/share/gh/extensions, so `gh extension install` is never needed.
+  programs.gh = {
+    enable = true;
+    extensions = [ pkgs-unstable.gh-stack ];
+    # config.yml is nix-managed; auth (hosts.yml) is left alone. `co` is gh's
+    # own default alias, re-declared here because the module writes aliases: {}.
+    settings.aliases.co = "pr checkout";
+  };
+
   home.packages = [
     pkgs-unstable.codex
     pkgs-unstable.devenv
@@ -35,7 +45,6 @@ in
     pkgs.openssl
     pkgs.eza
     pkgs.ffmpeg
-    pkgs.gh
     pkgs.kubectl
     pkgs.lazygit
     pkgs.mkcert
