@@ -130,9 +130,6 @@ in
 
     # PIPX
     export PATH="$PATH:/Users/abosio/.local/bin"
-
-    # MISE — TODO: remove when xoit project wraps up
-    eval "$(~/.local/bin/mise activate zsh)"
   '')
   ];
 }

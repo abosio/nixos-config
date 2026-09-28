@@ -176,10 +176,6 @@ home-manager expire-generations "-30 days"
 
 ## Current Tool Notes
 
-### mise
-
-mise is temporarily active (`# TODO: remove when related project wraps up` in `darwin.nix`). Once the project wraps up, remove the `eval "$(~/.local/bin/mise activate zsh)"` line from the `lib.mkAfter` initContent block in `darwin.nix`.
-
 ### pyenv
 
 pyenv is still managed outside of Nix (invoked from `darwin.nix` initContent, skipped inside devenv/nix shell via `$IN_NIX_SHELL` guard). It can be migrated to `programs.pyenv` or replaced with devenv's `languages.python` on a per-project basis when convenient.
