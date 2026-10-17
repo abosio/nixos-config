@@ -30,6 +30,7 @@
   };
 
   services.openssh.enable = true;
+  programs.mosh.enable = true; # installs mosh + opens UDP 60000-61000
 
   time.timeZone = "America/New_York";
 

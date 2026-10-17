@@ -48,6 +48,7 @@ in
     pkgs.kubectl
     pkgs.lazygit
     pkgs.mkcert
+    pkgs.mosh
     pkgs.mpv
     pkgs.nssTools
     pkgs.tmux
@@ -66,6 +67,16 @@ in
   };
 
   # Base aliases (ls/ll/la/grep/cat/cp/mv/rm/history) come from ./aliases.nix.
+
+  # Non-interactive shells (e.g. `ssh mac cmd`, which mosh uses to start
+  # mosh-server) skip .zshrc, so put Nix on PATH from .zshenv for them.
+  # Interactive shells keep sourcing it from .zshrc below, after macOS's
+  # /etc/zprofile path_helper has run, so their PATH order is unchanged.
+  programs.zsh.envExtra = ''
+    if [[ ! -o interactive && -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]]; then
+      . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+    fi
+  '';
 
   programs.zsh.initContent = lib.mkMerge [
   # Content that must appear before p10k instant prompt
