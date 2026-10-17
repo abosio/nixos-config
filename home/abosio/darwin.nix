@@ -35,6 +35,21 @@ in
     settings.aliases.co = "pr checkout";
   };
 
+  # Keys allowed to log in over ssh/mosh (shared 1Password key used on all hosts).
+  # Written as a real file, not a home.file symlink: sshd's StrictModes rejects
+  # authorized_keys whose path crosses the group-writable /nix/store.
+  home.activation.sshAuthorizedKeys =
+    let
+      authorizedKeys = pkgs.writeText "authorized_keys" ''
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEcG9/YHPeqb72Pg5sC21fSovbGEPJndt2upwSZXOR0z ABosio ED25519 SSH Key
+      '';
+    in
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      run mkdir -p -m 700 "$HOME/.ssh"
+      run rm -f "$HOME/.ssh/authorized_keys"
+      run install -m 600 ${authorizedKeys} "$HOME/.ssh/authorized_keys"
+    '';
+
   home.packages = [
     pkgs-unstable.codex
     pkgs-unstable.devenv
