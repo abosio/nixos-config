@@ -7,7 +7,7 @@
     pkgs.age
     pkgs.bat
     pkgs.calibre
-    pkgs.claude-code
+    pkgs-unstable.claude-code
     pkgs.cliphist
     pkgs.docker
     pkgs.dust
